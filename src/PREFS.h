@@ -13,4 +13,7 @@
 #define LEFTLIFTER_PORT 1
 #define TONGUE_PORT 6
 
+#define DETECTOR_IP "10.23.58.11"
+#define DETECTOR_LED_PORT 0
+
 #endif

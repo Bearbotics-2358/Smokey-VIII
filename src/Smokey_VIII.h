@@ -2,11 +2,11 @@
 #define SMOKEY_VIII_H
 
 #include "WPIlib.h"
+#include "ToteDetector.h"
 
 class Smokey_VIII : public IterativeRobot{
 public:
 	Smokey_VIII(void);
-	~Smokey_VIII(void);
 	void RobotInit(void);
 	void TeleopInit(void);
 	void TeleopPeriodic(void);
@@ -21,6 +21,7 @@ private:
 	Talon a_Tongue;
 	Talon a_Rlifter;
 	Talon a_Llifter;
+	ToteDetector a_Detectorino;
 };
 
 #endif // SMOKEY_VIII_H

@@ -10,15 +10,11 @@ Smokey_VIII::Smokey_VIII(void)
 	  a_BLmotor(BL_PORT),
 	  a_Tongue(TONGUE_PORT),
 	  a_Rlifter(RIGHTLIFTER_PORT),
-	  a_Llifter(LEFTLIFTER_PORT)
+	  a_Llifter(LEFTLIFTER_PORT),
+	  a_Detectorino(DETECTOR_IP)
 {
 
 }
-
-Smokey_VIII::~Smokey_VIII(void){
-
-}
-
 
 
 void Smokey_VIII::RobotInit(void)
@@ -35,11 +31,13 @@ void Smokey_VIII::TeleopInit(void)
 void Smokey_VIII::TeleopPeriodic(void)
 {
 	double slice = a_Joystick.GetY();
-	double slicex = a_Joystick.GetX();
-	double slice2 = -1 * a_Joystick.GetY();
+	bool processImage = a_Joystick.GetRawButton(1);
+
+	if(processImage) {
+		a_Detectorino.CheckForTote(true);
+	}
+
 	a_FLmotor.Set(slice);
-	// a_FRmotor.Set(slice2);
-	// a_BLmotor.Set(slicex);
 	SmartDashboard::PutNumber("Current", a_FLmotor.GetOutputCurrent());
 	SmartDashboard::PutNumber("Temperature", a_FLmotor.GetTemperature());
 }
