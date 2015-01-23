@@ -1,7 +1,7 @@
 #ifndef TOTE_DETECTOR_H
 #define TOTE_DETECTOR_H
 
-#include "WPIlib.h"
+#include "WPILib.h"
 
 class ToteDetector {
 public:

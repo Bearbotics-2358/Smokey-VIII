@@ -1,7 +1,7 @@
 #ifndef SMOKEY_VIII_H
 #define SMOKEY_VIII_H
 
-#include "WPIlib.h"
+#include "WPILib.h"
 #include "ToteDetector.h"
 
 class Smokey_VIII : public IterativeRobot{
