@@ -1,5 +1,5 @@
 #include "ToteDetector.h"
-#include "PREFS.h"
+#include "Prefs.h"
 
 #include <networktables2/util/System.h>
 #include <nivision.h>

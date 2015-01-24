@@ -1,6 +1,5 @@
-#include "PREFS.h"
-#include "SmokeyPnu.h"
 #include "Smokey_VIII.h"
+#include "Prefs.h"
 
 Smokey_VIII::Smokey_VIII(void)
 	: a_Gyro(GYRO_PORT),
@@ -20,18 +19,15 @@ Smokey_VIII::Smokey_VIII(void)
 }
 
 
-void Smokey_VIII::RobotInit(void)
-{
+void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(false);
 }
 
 
-void Smokey_VIII::TeleopInit(void)
-{
+void Smokey_VIII::TeleopInit(void) {
 }
 
-void Smokey_VIII::TeleopPeriodic(void)
-{
+void Smokey_VIII::TeleopPeriodic(void) {
 	// a_Pnu.Update(a_Joystick);
 
 	double slice = a_Joystick.GetY();
@@ -66,10 +62,7 @@ void Smokey_VIII::TeleopPeriodic(void)
 	}
 }
 
-void Smokey_VIII::TestPeriodic(void)
-{
-
+void Smokey_VIII::TestPeriodic(void) {
 }
-
 
 START_ROBOT_CLASS(Smokey_VIII);
