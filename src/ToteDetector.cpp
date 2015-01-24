@@ -133,8 +133,6 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 	ShapeReport* shapeReport = imaqMatchShape(shapeImage, shapeImage,
 			imageTemplate, 1, 1, 0.5, &numMatchesFound);
 
-	imaqDispose(shapeReport);
-
 	clock_gettime(CLOCK_MONOTONIC, &end);
 
 	SmartDashboard::PutNumber("Image Processing Time (ms)", (end.tv_nsec - start.tv_nsec) / 1000000);
@@ -150,6 +148,9 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 										 shapeReport[i].coordinates.height);
 		}
 	}
+
+	imaqDispose(shapeImage);
+	imaqDispose(shapeReport);
 
 	return false;
 }
