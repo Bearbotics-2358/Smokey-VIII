@@ -3,8 +3,9 @@
 
 #include "WPIlib.h"
 #include "ToteDetector.h"
+#include "SmokeyPnu.h"
 
-class Smokey_VIII : public IterativeRobot{
+class Smokey_VIII : public IterativeRobot {
 public:
 	Smokey_VIII(void);
 	void RobotInit(void);
@@ -22,6 +23,9 @@ private:
 	Talon a_Rlifter;
 	Talon a_Llifter;
 	ToteDetector a_Detectorino;
+	Compressor a_Compressor;
+	SmokeyPnu a_Pnu;
+	BuiltInAccelerometer a_Accel;
 };
 
 #endif // SMOKEY_VIII_H
