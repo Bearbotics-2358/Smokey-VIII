@@ -7,6 +7,9 @@
 #include <sstream>
 #include <time.h>
 
+const static int IMAGE_THRESHOLD = 50;
+const static int CAMERA_DELAY    = 100;
+
 ToteDetector::ToteDetector(std::string ip)
 	: a_Camera(ip),
 	  a_Leds(DETECTOR_LED_PORT)
@@ -35,23 +38,16 @@ void ToteDetector::SnapImage() {
 
 	timespec start, end;
 
-	int sleep = 100;
-	try {
-		sleep = (int)SmartDashboard::GetNumber("Camera Flash Delay");
-	} catch(...) {
-		SmartDashboard::PutNumber("Camera Flash Delay", 100);
-	}
-
 	// Turn the flash on
 	a_Leds.Set(0);
 
 	// Snap no-flash image
 	a_Camera.GetImage(&a_NoFlashImage);
 
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+	clock_gettime(CLOCK_MONOTONIC, &start);
 
 	// Sleep for a bit
-	sleep_ms(sleep);
+	sleep_ms(CAMERA_DELAY);
 
 	// Wait for new image
 	while(!a_Camera.IsFreshImage());
@@ -59,7 +55,7 @@ void ToteDetector::SnapImage() {
 	// Snap flash image
 	a_Camera.GetImage(&a_FlashImage);
 
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+	clock_gettime(CLOCK_MONOTONIC, &end);
 
 	// Turn flash back off
 	a_Leds.Set(1);
@@ -69,23 +65,19 @@ void ToteDetector::SnapImage() {
 	CheckIMAQError(imaqWriteJPEGFile(a_FlashImage.GetImaqImage(), "/home/lvuser/01-flash.jpg", 1000, NULL),
 			"imaqWriteJPEGFile");
 
-	SmartDashboard::PutNumber("Frame Delta", (end.tv_nsec - start.tv_nsec) / 1000000);
+	SmartDashboard::PutNumber("Frame Delta (ms)", (end.tv_nsec - start.tv_nsec) / 1000000);
 }
 
 bool ToteDetector::CheckForTote(bool snapImage) {
-	int threshold = 50;
-	try {
-		threshold = (int)SmartDashboard::GetNumber("Camera Threshold Minimum");
-	} catch(...) {
-		SmartDashboard::PutNumber("Camera Threshold Minimum", 50);
-	}
-
 	int rval;
 	int width1, width2, height1, height2;
+	timespec start, end;
 
 	if(snapImage) {
 		SnapImage();
 	}
+
+	clock_gettime(CLOCK_MONOTONIC, &start);
 
 	MonoImage *noFlashMono = a_NoFlashImage.GetLuminancePlane();
 	Image *noFlash = noFlashMono->GetImaqImage();
@@ -105,7 +97,7 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 	CheckIMAQError(imaqWriteJPEGFile(noFlash, "/home/lvuser/02-subtract.jpg", 1000, NULL),
 			"imaqWriteJPEGFile");
 
-	rval = imaqThreshold(noFlash, noFlash, threshold, 255, 1, 255);
+	rval = imaqThreshold(noFlash, noFlash, IMAGE_THRESHOLD, 255, 1, 255);
 	CheckIMAQError(rval, "imaqThreshold");
 
 	CheckIMAQError(imaqWriteJPEGFile(noFlash, "/home/lvuser/03-threshold.jpg", 1000, NULL),
@@ -117,7 +109,6 @@ bool ToteDetector::CheckForTote(bool snapImage) {
     // Applies a lookup table to the image because the input image for the
     // imaqMatchShape function must be a binary image that contains only
     // pixel values of 0 or 1
-
     short lookupTable[256];
     lookupTable[0] = 0;
     for(int i = 1 ; i < 256 ; i++) {
@@ -142,7 +133,23 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 	ShapeReport* shapeReport = imaqMatchShape(shapeImage, shapeImage,
 			imageTemplate, 1, 1, 0.5, &numMatchesFound);
 
-	SmartDashboard::PutNumber("Matches Found", numMatchesFound);
+	imaqDispose(shapeReport);
+
+	clock_gettime(CLOCK_MONOTONIC, &end);
+
+	SmartDashboard::PutNumber("Image Processing Time (ms)", (end.tv_nsec - start.tv_nsec) / 1000000);
+
+	printf("==== Shape Match Results ====\n");
+	for(int i = 0; i < numMatchesFound; i++) {
+		if(shapeReport[i].score >= 800 && shapeReport[i].size >= 700) {
+			printf("# Shape Match\n");
+			printf("- size: %d\n", shapeReport[i].size);
+			printf("- x: %d\n- y: %d\n", shapeReport[i].coordinates.left,
+										 shapeReport[i].coordinates.top);
+			printf("- w: %d\n- h: %d\n", shapeReport[i].coordinates.width,
+										 shapeReport[i].coordinates.height);
+		}
+	}
 
 	return false;
 }
