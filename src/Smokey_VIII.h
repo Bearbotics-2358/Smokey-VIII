@@ -14,21 +14,26 @@ public:
 	void TestPeriodic(void);
 
 private:
-	Gyro a_Gyro;
 	Joystick a_Joystick;
-	CANTalon a_FLmotor;
-	CANTalon a_FRmotor;
-	CANTalon a_BLmotor;
+
+	CANTalon   a_FLmotor;
+	CANTalon   a_FRmotor;
+	CANTalon   a_BLmotor;
+	CANTalon   a_BRmotor;
+	RobotDrive a_Drive;
+
 	Talon a_Tongue;
 	Talon a_Rlifter;
 	Talon a_Llifter;
+
+	Compressor   a_Compressor;
+	SmokeyPnu    a_Pnu;
+
 	ToteDetector a_Detectorino;
-	Compressor a_Compressor;
-	SmokeyPnu a_Pnu;
+
 	BuiltInAccelerometer a_Accel;
 	Encoder a_Encoder;
-
-	//double a_X, a_Y, a_Z;
+	Gyro a_Gyro;
 };
 
 #endif // SMOKEY_VIII_H

@@ -1,5 +1,5 @@
 #include "ToteDetector.h"
-#include "PREFS.h"
+#include "Prefs.h"
 
 #include <networktables2/util/System.h>
 #include <nivision.h>
@@ -137,6 +137,7 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 
 	SmartDashboard::PutNumber("Image Processing Time (ms)", (end.tv_nsec - start.tv_nsec) / 1000000);
 
+	int numGoodMatches = 0;
 	printf("==== Shape Match Results ====\n");
 	for(int i = 0; i < numMatchesFound; i++) {
 		if(shapeReport[i].score >= 800 && shapeReport[i].size >= 700) {
@@ -146,11 +147,12 @@ bool ToteDetector::CheckForTote(bool snapImage) {
 										 shapeReport[i].coordinates.top);
 			printf("- w: %d\n- h: %d\n", shapeReport[i].coordinates.width,
 										 shapeReport[i].coordinates.height);
+			numGoodMatches++;
 		}
 	}
 
 	imaqDispose(shapeImage);
 	imaqDispose(shapeReport);
 
-	return false;
+	return (numGoodMatches >= 2);
 }
