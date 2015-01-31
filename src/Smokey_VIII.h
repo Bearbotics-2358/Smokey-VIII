@@ -26,6 +26,9 @@ private:
 	Compressor a_Compressor;
 	SmokeyPnu a_Pnu;
 	BuiltInAccelerometer a_Accel;
+	Encoder a_Encoder;
+
+	//double a_X, a_Y, a_Z;
 };
 
 #endif // SMOKEY_VIII_H
