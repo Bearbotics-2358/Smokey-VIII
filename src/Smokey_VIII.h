@@ -3,7 +3,6 @@
 
 #include "WPILib.h"
 #include "ToteDetector.h"
-#include "SmokeyPnu.h"
 
 class Smokey_VIII : public IterativeRobot {
 public:
@@ -27,7 +26,7 @@ private:
 	Talon a_Llifter;
 
 	Compressor   a_Compressor;
-	SmokeyPnu    a_Pnu;
+
 
 	ToteDetector a_Detectorino;
 

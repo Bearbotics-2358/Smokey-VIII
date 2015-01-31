@@ -12,7 +12,6 @@ Smokey_VIII::Smokey_VIII(void)
 	  a_Rlifter(RIGHTLIFTER_PORT),
 	  a_Llifter(LEFTLIFTER_PORT),
 	  a_Compressor(),
-	  a_Pnu(),
 	  a_Detectorino(DETECTOR_IP),
 	  a_Accel(Accelerometer::kRange_4G),
 	  a_Encoder(LIFT_ENCODER_PORT_1, LIFT_ENCODER_PORT_2),
@@ -35,9 +34,6 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	// double driveX = a_Joystick.GetX();
 	// double driveY = a_Joystick.GetY();
 	// a_Drive.MecanumDrive_Cartesian(driveX, driveY, 0.0, 0.0);
-
-	a_Pnu.Update(a_Joystick);
-
 	double slice = a_Joystick.GetY();
 
 	//a_X += x;
