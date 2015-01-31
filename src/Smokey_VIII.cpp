@@ -9,24 +9,23 @@ Smokey_VIII::Smokey_VIII(void)
 	  a_BRmotor(BR_PORT),
 	  a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
 	  a_Tongue(TONGUE_PORT),
-	  a_Rlifter(RIGHTLIFTER_PORT),
-	  a_Llifter(LEFTLIFTER_PORT),
+
 	  a_Compressor(),
 	  a_Detectorino(DETECTOR_IP),
 	  a_Accel(Accelerometer::kRange_4G),
-	  a_Encoder(LIFT_ENCODER_PORT_1, LIFT_ENCODER_PORT_2),
+
 	  a_Gyro(GYRO_PORT) {
 }
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-	a_Encoder.SetDistancePerPulse(0.5);
+	//a_Encoder.SetDistancePerPulse(0.5);
 	//a_X = 0.0, a_Y = 0.0, a_Z = 0.0;
 }
 
 
 void Smokey_VIII::TeleopInit(void) {
-	a_Encoder.Reset();
+	//a_Encoder.Reset();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -44,7 +43,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	//SmartDashboard::PutNumber("Accelerometer Y", a_Y);
 	//SmartDashboard::PutNumber("Accelerometer Z", a_Z);
 
-	SmartDashboard::PutNumber("Encoder", a_Encoder.GetDistance());
+	//SmartDashboard::PutNumber("Encoder", a_Encoder.GetDistance());
 
 	/*
 	if(a_Joystick.GetRawButton(3))

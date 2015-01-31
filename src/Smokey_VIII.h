@@ -22,8 +22,7 @@ private:
 	RobotDrive a_Drive;
 
 	Talon a_Tongue;
-	Talon a_Rlifter;
-	Talon a_Llifter;
+
 
 	Compressor   a_Compressor;
 
@@ -31,7 +30,7 @@ private:
 	ToteDetector a_Detectorino;
 
 	BuiltInAccelerometer a_Accel;
-	Encoder a_Encoder;
+
 	Gyro a_Gyro;
 };
 
