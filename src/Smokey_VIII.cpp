@@ -7,14 +7,13 @@ Smokey_VIII::Smokey_VIII(void)
 	  a_FRmotor(FR_PORT),
 	  a_BLmotor(BL_PORT),
 	  a_BRmotor(BR_PORT),
-	  a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
+	  // a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
 	  a_Tongue(TONGUE_PORT),
-
 	  a_Compressor(),
-	  a_Detectorino(DETECTOR_IP),
+	  // a_Detectorino(DETECTOR_IP),
 	  a_Accel(Accelerometer::kRange_4G),
-
-	  a_Gyro(GYRO_PORT) {
+	  a_Gyro(GYRO_PORT),
+	  a_LRC(){
 }
 
 void Smokey_VIII::RobotInit(void) {
@@ -35,33 +34,18 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	// a_Drive.MecanumDrive_Cartesian(driveX, driveY, 0.0, 0.0);
 	double slice = a_Joystick.GetY();
 
-	//a_X += x;
-	//a_Y += y;
-	//a_Z += z;
-
-	//SmartDashboard::PutNumber("Accelerometer X", a_X);
-	//SmartDashboard::PutNumber("Accelerometer Y", a_Y);
-	//SmartDashboard::PutNumber("Accelerometer Z", a_Z);
-
-	//SmartDashboard::PutNumber("Encoder", a_Encoder.GetDistance());
-
-	/*
-	if(a_Joystick.GetRawButton(3))
-	{
-		a_BLmotor.Set(0.25);
-		a_FRmotor.Set(-0.25);
+	bool result = false;
+	if(a_Joystick.GetRawButton(3)){
+		result = a_LRC.SetColor(0, 255, 0, 0);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}else if(a_Joystick.GetRawButton(4)){
+		result = a_LRC.SetColor(0, 0, 255, 0);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}else if(a_Joystick.GetRawButton(5)){
+		result = a_LRC.SetColor(0, 0, 0, 255);
+		SmartDashboard::PutBoolean("I2C result", result);
 	}
-	else if(a_Joystick.GetRawButton(2))
-	{
-		a_BLmotor.Set(-0.25);
-		a_FRmotor.Set(0.25);
-	}
-	else
-	{
-		a_BLmotor.Set(0);
-		a_FRmotor.Set(0);
-	}
-	*/
+
 
 	a_FRmotor.Set(slice * 0.125);
 
@@ -69,7 +53,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 
 	try {
 		if(processImage) {
-			a_Detectorino.CheckForTote(true);
+			// a_Detectorino.CheckForTote(true);
 		}
 	} catch(std::exception &ex) {
 		printf("Exception: %s\n", ex.what());

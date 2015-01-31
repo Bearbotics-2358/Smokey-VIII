@@ -3,6 +3,7 @@
 
 #include "WPILib.h"
 #include "ToteDetector.h"
+#include "LightRingController.h"
 
 class Smokey_VIII : public IterativeRobot {
 public:
@@ -19,7 +20,7 @@ private:
 	CANTalon   a_FRmotor;
 	CANTalon   a_BLmotor;
 	CANTalon   a_BRmotor;
-	RobotDrive a_Drive;
+	// RobotDrive a_Drive;
 
 	Talon a_Tongue;
 
@@ -27,11 +28,13 @@ private:
 	Compressor   a_Compressor;
 
 
-	ToteDetector a_Detectorino;
+	// ToteDetector a_Detectorino;
 
 	BuiltInAccelerometer a_Accel;
 
 	Gyro a_Gyro;
+
+	LightRingController a_LRC;
 };
 
 #endif // SMOKEY_VIII_H
