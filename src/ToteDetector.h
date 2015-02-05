@@ -2,6 +2,7 @@
 #define TOTE_DETECTOR_H
 
 #include "WPILib.h"
+#include "LightRingController.h"
 
 class ToteDetector {
 public:
@@ -14,7 +15,7 @@ private:
 	void CheckIMAQError(int rval, std::string desc);
 
 	AxisCamera a_Camera;
-	DigitalOutput a_Leds;
+	LightRingController a_Flash;
 
 	HSLImage a_NoFlashImage;
 	HSLImage a_FlashImage;

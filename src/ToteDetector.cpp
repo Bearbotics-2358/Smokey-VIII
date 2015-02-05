@@ -12,9 +12,9 @@ const static int CAMERA_DELAY    = 100;
 
 ToteDetector::ToteDetector(std::string ip)
 	: a_Camera(ip),
-	  a_Leds(DETECTOR_LED_PORT)
+	  a_Flash()
 {
-	a_Leds.Set(1);
+	a_Flash.SetFlash(0,false);
 }
 
 void ToteDetector::CheckIMAQError(int rval, std::string desc)
@@ -39,7 +39,7 @@ void ToteDetector::SnapImage() {
 	timespec start, end;
 
 	// Turn the flash on
-	a_Leds.Set(0);
+	a_Flash.SetFlash(0, true);
 
 	// Snap no-flash image
 	a_Camera.GetImage(&a_NoFlashImage);
@@ -58,7 +58,7 @@ void ToteDetector::SnapImage() {
 	clock_gettime(CLOCK_MONOTONIC, &end);
 
 	// Turn flash back off
-	a_Leds.Set(1);
+	a_Flash.SetFlash(0,false);
 
 	CheckIMAQError(imaqWriteJPEGFile(a_NoFlashImage.GetImaqImage(), "/home/lvuser/00-noflash.jpg", 1000, NULL),
 			"imaqWriteJPEGFile");

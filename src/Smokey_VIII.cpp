@@ -7,13 +7,17 @@ Smokey_VIII::Smokey_VIII(void)
 	  a_FRmotor(FR_PORT),
 	  a_BLmotor(BL_PORT),
 	  a_BRmotor(BR_PORT),
-	  // a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
+	  a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
 	  a_Tongue(TONGUE_PORT),
 	  a_Compressor(),
 	  // a_Detectorino(DETECTOR_IP),
 	  a_Accel(Accelerometer::kRange_4G),
 	  a_Gyro(GYRO_PORT),
 	  a_LRC(){
+
+
+	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
+	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
 }
 
 void Smokey_VIII::RobotInit(void) {
@@ -28,12 +32,11 @@ void Smokey_VIII::TeleopInit(void) {
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
-	// AJM: Uncomment when ready for drive
-	// double driveX = a_Joystick.GetX();
-	// double driveY = a_Joystick.GetY();
-	// a_Drive.MecanumDrive_Cartesian(driveX, driveY, 0.0, 0.0);
-	double slice = a_Joystick.GetY();
-
+	a_Drive.MecanumDrive_Cartesian(a_Joystick.GetX(), a_Joystick.GetY(), a_Joystick.GetZ(), 0.0);
+SmartDashboard::PutNumber("Joystick X",a_Joystick.GetX());
+SmartDashboard::PutNumber("Joystick Y",a_Joystick.GetY());
+SmartDashboard::PutNumber("Joystick Z",a_Joystick.GetZ());
+/*
 	bool result = false;
 	if(a_Joystick.GetRawButton(3)){
 		result = a_LRC.SetColor(0, 255, 0, 0);
@@ -45,10 +48,9 @@ void Smokey_VIII::TeleopPeriodic(void) {
 		result = a_LRC.SetColor(0, 0, 0, 255);
 		SmartDashboard::PutBoolean("I2C result", result);
 	}
+*/
 
-
-	a_FRmotor.Set(slice * 0.125);
-
+/*
 	bool processImage = a_Joystick.GetRawButton(1);
 
 	try {
@@ -58,6 +60,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	} catch(std::exception &ex) {
 		printf("Exception: %s\n", ex.what());
 	}
+	*/
 }
 
 void Smokey_VIII::TestPeriodic(void) {

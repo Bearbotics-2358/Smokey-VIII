@@ -20,7 +20,7 @@ private:
 	CANTalon   a_FRmotor;
 	CANTalon   a_BLmotor;
 	CANTalon   a_BRmotor;
-	// RobotDrive a_Drive;
+	RobotDrive a_Drive;
 
 	Talon a_Tongue;
 
