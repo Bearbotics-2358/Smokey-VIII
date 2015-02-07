@@ -1,8 +1,10 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
 
+
 Smokey_VIII::Smokey_VIII(void)
 	: a_Joystick(JOYSTICK_PORT),
+	  a_Joystick2(JOYSTICKTWO_PORT),
 	  a_FLmotor(FL_PORT),
 	  a_FRmotor(FR_PORT),
 	  a_BLmotor(BL_PORT),
@@ -13,8 +15,9 @@ Smokey_VIII::Smokey_VIII(void)
 	  // a_Detectorino(DETECTOR_IP),
 	  a_Accel(Accelerometer::kRange_4G),
 	  a_Gyro(GYRO_PORT),
-	  a_LRC(){
-
+	  a_LRC(),
+	  a_Lifter()
+	  {
 
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
@@ -22,48 +25,59 @@ Smokey_VIII::Smokey_VIII(void)
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-	//a_Encoder.SetDistancePerPulse(0.5);
-	//a_X = 0.0, a_Y = 0.0, a_Z = 0.0;
+
+	a_Drive.SetExpiration(0.5);
 }
 
 
 void Smokey_VIII::TeleopInit(void) {
-	//a_Encoder.Reset();
+	a_Lifter.Reset();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
-	a_Drive.MecanumDrive_Cartesian(a_Joystick.GetX(), a_Joystick.GetY(), a_Joystick.GetZ(), 0.0);
-SmartDashboard::PutNumber("Joystick X",a_Joystick.GetX());
-SmartDashboard::PutNumber("Joystick Y",a_Joystick.GetY());
-SmartDashboard::PutNumber("Joystick Z",a_Joystick.GetZ());
-/*
-	bool result = false;
-	if(a_Joystick.GetRawButton(3)){
-		result = a_LRC.SetColor(0, 255, 0, 0);
-		SmartDashboard::PutBoolean("I2C result", result);
-	}else if(a_Joystick.GetRawButton(4)){
-		result = a_LRC.SetColor(0, 0, 255, 0);
-		SmartDashboard::PutBoolean("I2C result", result);
-	}else if(a_Joystick.GetRawButton(5)){
-		result = a_LRC.SetColor(0, 0, 0, 255);
-		SmartDashboard::PutBoolean("I2C result", result);
-	}
-*/
 
-/*
-	bool processImage = a_Joystick.GetRawButton(1);
+	double stickX = a_Joystick.GetX();
+	double stickY = a_Joystick.GetY();
+	double stickZ = a_Joystick.GetZ();
+	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
-	try {
-		if(processImage) {
-			// a_Detectorino.CheckForTote(true);
-		}
-	} catch(std::exception &ex) {
-		printf("Exception: %s\n", ex.what());
-	}
-	*/
+	a_Lifter.Update(a_Joystick, a_Joystick2);
+
+	a_Tongue.Set(0);
+}
+
+void Smokey_VIII::TestInit(void) {
+	a_Lifter.Reset();
 }
 
 void Smokey_VIII::TestPeriodic(void) {
+	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
+
+	/*
+		bool result = false;
+		if(a_Joystick.GetRawButton(3)){
+			result = a_LRC.SetColor(0, 255, 0, 0);
+			SmartDashboard::PutBoolean("I2C result", result);
+		}else if(a_Joystick.GetRawButton(4)){
+			result = a_LRC.SetColor(0, 0, 255, 0);
+			SmartDashboard::PutBoolean("I2C result", result);
+		}else if(a_Joystick.GetRawButton(5)){
+			result = a_LRC.SetColor(0, 0, 0, 255);
+			SmartDashboard::PutBoolean("I2C result", result);
+		}
+	 */
+
+	/*
+		bool processImage = a_Joystick.GetRawButton(1);
+
+		try {
+			if(processImage) {
+				// a_Detectorino.CheckForTote(true);
+			}
+		} catch(std::exception &ex) {
+			printf("Exception: %s\n", ex.what());
+		}
+	 */
 }
 
 START_ROBOT_CLASS(Smokey_VIII);
