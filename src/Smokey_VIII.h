@@ -6,14 +6,26 @@
 #include "LightRingController.h"
 #include "Lifterino.h"
 
+enum AutoState {
+	kGrabbing = 0,
+	kFindingTote,
+	kDrivingToAutoZone,
+	kPlacing,
+	kBacking,
+	kIdle
+
+};
+
 class Smokey_VIII : public IterativeRobot {
 public:
 	Smokey_VIII(void);
 	void RobotInit(void);
 	void TeleopInit(void);
 	void TeleopPeriodic(void);
-	void TestPeriodic(void);
 	void TestInit(void);
+	void TestPeriodic(void);
+	void AutonomousInit(void);
+	void AutonomousPeriodic(void);
 
 private:
 	Joystick a_Joystick;

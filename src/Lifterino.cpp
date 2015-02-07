@@ -1,8 +1,6 @@
 #include "Lifterino.h"
 #include "Prefs.h"
 
-
-//Pneumatics ports 0 and 1 are blue, 2 and 3 are white- blue is extend (clamp) and white is retract
 Lifterino::Lifterino()
 	:a_Rlifter(RIGHTLIFTER_PORT),
 	 a_Llifter(LEFTLIFTER_PORT),
@@ -91,5 +89,4 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 void Lifterino::Reset(void) {
 	a_Encoder.Reset();
 	a_State = kNoTotes;
-
 }

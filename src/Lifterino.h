@@ -12,7 +12,7 @@ enum LifterinoState {
 	kIdleWithTote
 };
 
-class Lifterino{
+class Lifterino {
 public:
 	Lifterino(void);
 	void Update(Joystick &stick, Joystick &stick2);

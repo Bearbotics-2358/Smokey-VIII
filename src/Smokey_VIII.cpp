@@ -3,22 +3,21 @@
 
 
 Smokey_VIII::Smokey_VIII(void)
-	: a_Joystick(JOYSTICK_PORT),
-	  a_Joystick2(JOYSTICKTWO_PORT),
-	  a_FLmotor(FL_PORT),
-	  a_FRmotor(FR_PORT),
-	  a_BLmotor(BL_PORT),
-	  a_BRmotor(BR_PORT),
-	  a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
-	  a_Tongue(TONGUE_PORT),
-	  a_Compressor(),
-	  // a_Detectorino(DETECTOR_IP),
-	  a_Accel(Accelerometer::kRange_4G),
-	  a_Gyro(GYRO_PORT),
-	  a_LRC(),
-	  a_Lifter()
-	  {
-
+: a_Joystick(JOYSTICK_PORT),
+  a_Joystick2(JOYSTICKTWO_PORT),
+  a_FLmotor(FL_PORT),
+  a_FRmotor(FR_PORT),
+  a_BLmotor(BL_PORT),
+  a_BRmotor(BR_PORT),
+  a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
+  a_Tongue(TONGUE_PORT),
+  a_Compressor(),
+  // a_Detectorino(DETECTOR_IP),
+  a_Accel(Accelerometer::kRange_4G),
+  a_Gyro(GYRO_PORT),
+  a_LRC(),
+  a_Lifter()
+{
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
 }
@@ -78,6 +77,14 @@ void Smokey_VIII::TestPeriodic(void) {
 			printf("Exception: %s\n", ex.what());
 		}
 	 */
+}
+
+void Smokey_VIII::AutonomousInit(void) {
+	a_Lifter.Reset();
+}
+
+void Smokey_VIII::AutonomousPeriodic(void) {
+
 }
 
 START_ROBOT_CLASS(Smokey_VIII);
