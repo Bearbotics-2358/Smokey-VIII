@@ -2,6 +2,7 @@
 #define LIFTERINO_H
 
 #include <WPILib.h>
+#include "KiwiController.h"
 
 enum LifterinoState {
 	kNoTotes = 0,
@@ -9,7 +10,9 @@ enum LifterinoState {
 	kGripDelay,
 	kLift,
 	kRelease,
-	kIdleWithTote
+	kIdleWithTote,
+	kLower,
+	kReleaseDelay
 };
 
 class Lifterino {
@@ -29,6 +32,10 @@ private:
 	LifterinoState a_State;
 
 	Timer a_Timer;
+
+	DigitalInput a_LifterSwitch;
+
+	KiwiController a_LifterC;
 };
 
 #endif // LIFTERINO_H

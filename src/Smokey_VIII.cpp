@@ -16,7 +16,8 @@ Smokey_VIII::Smokey_VIII(void)
   a_Accel(Accelerometer::kRange_4G),
   a_Gyro(GYRO_PORT),
   a_LRC(),
-  a_Lifter()
+  a_Lifter(),
+  a_PDP()
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
@@ -30,7 +31,7 @@ void Smokey_VIII::RobotInit(void) {
 
 
 void Smokey_VIII::TeleopInit(void) {
-	a_Lifter.Reset();
+	//a_Lifter.Reset();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -43,6 +44,8 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 
 	a_Tongue.Set(0);
+
+
 }
 
 void Smokey_VIII::TestInit(void) {
@@ -50,9 +53,21 @@ void Smokey_VIII::TestInit(void) {
 }
 
 void Smokey_VIII::TestPeriodic(void) {
-	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
+	a_Lifter.Update(a_Joystick, a_Joystick2);
+	if(a_Joystick.GetRawButton(10)){
+		a_Lifter.Reset();
+	}
+	a_Tongue.Set(0);
+
+
+
+	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
+	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
+	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
+	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 
 	/*
+	 *
 		bool result = false;
 		if(a_Joystick.GetRawButton(3)){
 			result = a_LRC.SetColor(0, 255, 0, 0);
@@ -80,7 +95,7 @@ void Smokey_VIII::TestPeriodic(void) {
 }
 
 void Smokey_VIII::AutonomousInit(void) {
-	a_Lifter.Reset();
+	//a_Lifter.Reset();
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {

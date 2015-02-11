@@ -6,6 +6,7 @@
 #define JOYSTICK_PORT 0
 #define JOYSTICKTWO_PORT 1
 
+
 #define FL_PORT 1
 #define FR_PORT 3
 #define BL_PORT 0
@@ -27,6 +28,8 @@
 
 #define LIFT_ENCODER_PORT_1 1
 #define LIFT_ENCODER_PORT_2 2
+
+#define LIFTER_SWITCH_PORT 0
 
 #define LIGHT_RING_CONTROLLER_ADDRESS 0x4
 

@@ -38,10 +38,7 @@ private:
 
 	Talon a_Tongue;
 
-
-
 	Compressor   a_Compressor;
-
 
 	// ToteDetector a_Detectorino;
 
@@ -51,6 +48,8 @@ private:
 
 	LightRingController a_LRC;
 	Lifterino a_Lifter;
+
+	PowerDistributionPanel a_PDP;
 };
 
 #endif // SMOKEY_VIII_H
