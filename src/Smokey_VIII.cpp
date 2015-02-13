@@ -50,14 +50,24 @@ void Smokey_VIII::TeleopPeriodic(void) {
 
 void Smokey_VIII::TestInit(void) {
 	a_Lifter.Reset();
+	// a_Lifter.SetEnabled(true);
+	a_Lifter.SetEnabled(false);
+
 }
 
 void Smokey_VIII::TestPeriodic(void) {
 	a_Lifter.Update(a_Joystick, a_Joystick2);
+
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
+
 	a_Tongue.Set(0);
+
+	double stickX = a_Joystick.GetX();
+	double stickY = a_Joystick.GetY();
+	double stickZ = a_Joystick.GetZ();
+	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
 
 

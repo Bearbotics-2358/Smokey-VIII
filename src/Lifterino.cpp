@@ -1,5 +1,6 @@
 #include "Lifterino.h"
 #include "Prefs.h"
+#include "PIDController.h"
 
 Lifterino::Lifterino()
 	:a_Rlifter(RIGHTLIFTER_PORT),
@@ -10,28 +11,65 @@ Lifterino::Lifterino()
 	 a_State(kNoTotes),
 	 a_Timer(),
 	 a_LifterSwitch(LIFTER_SWITCH_PORT),
-	 a_LifterC(a_Llifter, a_Rlifter)
+	 a_LifterC(a_Llifter, a_Rlifter),
+	 a_PID(P, I, D, &a_Encoder, &a_LifterC, 0.05)
 {
-	a_Encoder.SetDistancePerPulse(0.25);
+	SetEnabled(false);
+	a_Encoder.SetPIDSourceParameter(PIDSource::kDistance);
+	a_Encoder.SetDistancePerPulse(1);
+
+	a_PID.SetOutputRange(-1.0, 1.0);
+	a_PID.SetInputRange(-1000, 1000);
+
+
+
 
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	bool liftButton = stick.GetRawButton(1);
+	bool pnuExtendButton = stick2.GetRawButton(3);
+	bool pnuRetractButton = stick2.GetRawButton(2);
 
-	a_LifterC.Set(-1 * stick2.GetY());
+	if(!a_enabled) {
+		a_LifterC.Set(-1 * stick2.GetY());
+		if(pnuExtendButton) {
+				a_Grip.Set(DoubleSolenoid::kForward);
+			} else if(pnuRetractButton) {
+				a_Grip.Set(DoubleSolenoid::kReverse);
+			}
+	}
+
 	// a_Rlifter.Set(-1 * stick2.GetY());
 	// a_Llifter.Set(stick2.GetY());
 
 
-	LifterinoState nextState = a_State;
-	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetRaw());
+	if(stick2.GetRawButton(1)){
+		SetEnabled(true);
+		a_PID.SetSetpoint(SmartDashboard::GetNumber("soke"));
+	}
 
+	LifterinoState nextState = a_State;
+	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
+	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
+	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
+	SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
+	// SmartDashboard::PutNumber("P", P);
+	// SmartDashboard::PutNumber("I", I);
+	// SmartDashboard::PutNumber("D", D);
+
+	P = SmartDashboard::GetNumber("P");
+	I = SmartDashboard::GetNumber("I");
+	D = SmartDashboard::GetNumber("D");
+
+	a_PID.SetPID(P, I, D);
+
 	if(!a_LifterSwitch.Get()){
 				a_Encoder.Reset();
-		}
+	}
 
+// State Machine
 	switch(a_State){
 	case kNoTotes:
 		if(liftButton){
@@ -130,6 +168,12 @@ void Lifterino::Reset(void) {
 	a_State = kNoTotes;
 	a_Grip.Set(DoubleSolenoid::kReverse);
 
+}
+
+void Lifterino::SetEnabled(bool enable)
+{
+	a_enabled = enable;
+	(enable) ? a_PID.Enable() : a_PID.Disable();
 }
 
 
