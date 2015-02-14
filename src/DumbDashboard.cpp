@@ -2,7 +2,7 @@
 
 #include <zmq.h>
 #include <zmq_utils.h>
-#include <zhelpers.h>
+#include "zhelpers.h"
 
 DumbDashboard::DumbDashboard(void) {
 	_ctx = zmq_ctx_new();
@@ -15,10 +15,14 @@ DumbDashboard::~DumbDashboard(void) {
 	zmq_ctx_destroy(_ctx);
 }
 
-void DumbDashboard::SendDouble(const char *key, double value) {
-	char buffer[32];
-	sprintf(buffer, "%.4f", value);
+void DumbDashboard::SendDouble(std::string key, double value) {
+	_channels.emplace(key);
+	SendChannels();
 
-	s_sendmore(_pub, key);
-	s_send(_pub, buffer);
+	s_sendmore(_pub, key.c_str());
+	zmq_send(_pub, &value, sizeof(value), 0);
+}
+
+void DumbDashboard::SendChannels(void) {
+	s_sendmore(_pub, "channels");
 }
