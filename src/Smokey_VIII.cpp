@@ -17,7 +17,8 @@ Smokey_VIII::Smokey_VIII(void)
   a_Gyro(GYRO_PORT),
   a_LRC(),
   a_Lifter(),
-  a_PDP()
+  a_PDP(),
+  a_DS()
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
@@ -69,7 +70,7 @@ void Smokey_VIII::TestPeriodic(void) {
 	double stickZ = a_Joystick.GetZ();
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
-
+	a_DS.SendDouble("Stick X", stickX);
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());

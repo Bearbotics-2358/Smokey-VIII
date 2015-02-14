@@ -2,7 +2,13 @@
 
 #include <zmq.h>
 #include <zmq_utils.h>
-#include "zhelpers.h"
+#include <zhelpers.h>
+
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
+using namespace rapidjson;
 
 DumbDashboard::DumbDashboard(void) {
 	_ctx = zmq_ctx_new();
@@ -19,10 +25,37 @@ void DumbDashboard::SendDouble(std::string key, double value) {
 	_channels.emplace(key);
 	SendChannels();
 
+	StringBuffer s;
+	Writer<StringBuffer> writer(s);
+
+	writer.StartObject();
+	writer.String("timestamp");
+	writer.Uint(time(NULL));
+	writer.String("data");
+	writer.Double(value);
+	writer.EndObject();
+
 	s_sendmore(_pub, key.c_str());
-	zmq_send(_pub, &value, sizeof(value), 0);
+	s_send(_pub, s.GetString());
 }
 
 void DumbDashboard::SendChannels(void) {
+	StringBuffer s;
+	Writer<StringBuffer> writer(s);
+
+	writer.StartObject();
+	writer.String("channels");
+	writer.StartArray();
+
+	std::unordered_set<std::string>::iterator it;
+	for(it = _channels.begin(); it != _channels.end(); it++) {
+		std::string channel = *it;
+		writer.String(channel.c_str());
+	}
+
+	writer.EndArray();
+	writer.EndObject();
+
 	s_sendmore(_pub, "channels");
+	s_send(_pub, s.GetString());
 }

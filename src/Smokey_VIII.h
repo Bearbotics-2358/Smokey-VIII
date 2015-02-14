@@ -5,6 +5,7 @@
 #include "ToteDetector.h"
 #include "LightRingController.h"
 #include "Lifterino.h"
+#include "DumbDashboard.h"
 
 enum AutoState {
 	kGrabbing = 0,
@@ -50,6 +51,8 @@ private:
 	Lifterino a_Lifter;
 
 	PowerDistributionPanel a_PDP;
+
+	DumbDashboard a_DS;
 };
 
 #endif // SMOKEY_VIII_H
