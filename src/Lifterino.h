@@ -6,7 +6,8 @@
 #include "PIDController.h"
 
 enum LifterinoState {
-	kNoTotes = 0,
+	kFindZero = 0,
+	kNoTotes,
 	kGrip,
 	kGripDelay,
 	kLift,
@@ -25,10 +26,12 @@ public:
 	void SetEnabled(bool enable);
 
 private:
+	const double TOP_LIFTER_SETPOINT = 50.0;
+	const double BOTTOM_LIFTER_SETPOINT = 3.0;
+
 	Talon a_Rlifter;
 	Talon a_Llifter;
 	DoubleSolenoid a_Grip;
-	DoubleSolenoid a_Samurai;
 
 	Encoder a_Encoder;
 	LifterinoState a_State;
@@ -41,9 +44,9 @@ private:
 
 	PIDController a_PID;
 
-	float P = 0.05;
-	float I = 0.001;
-	float D = 0;
+	float P = 0.225;
+	float I = 0.02592;
+	float D = 0.0;
 	bool a_enabled;
 };
 

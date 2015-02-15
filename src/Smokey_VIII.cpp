@@ -21,6 +21,8 @@ Smokey_VIII::Smokey_VIII(void)
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
+	a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
+	a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
 }
 
 void Smokey_VIII::RobotInit(void) {
@@ -31,7 +33,7 @@ void Smokey_VIII::RobotInit(void) {
 
 
 void Smokey_VIII::TeleopInit(void) {
-	//a_Lifter.Reset();
+	a_Lifter.Reset();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -39,6 +41,9 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
+	if(stickZ < 0 && stickZ > -0.3) {
+		stickZ = 0;
+	}
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
 	a_Lifter.Update(a_Joystick, a_Joystick2);
@@ -56,7 +61,7 @@ void Smokey_VIII::TestInit(void) {
 }
 
 void Smokey_VIII::TestPeriodic(void) {
-	a_Lifter.Update(a_Joystick, a_Joystick2);
+	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
 
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
@@ -67,6 +72,9 @@ void Smokey_VIII::TestPeriodic(void) {
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
+	if(stickZ < 0 && stickZ > -0.3) {
+			stickZ = 0;
+		}
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
 
@@ -76,20 +84,21 @@ void Smokey_VIII::TestPeriodic(void) {
 	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 
-	/*
-	 *
+
 		bool result = false;
 		if(a_Joystick.GetRawButton(3)){
-			result = a_LRC.SetColor(0, 255, 0, 0);
+			result = a_LRC.SetColor(0, 60, 0, 0);
 			SmartDashboard::PutBoolean("I2C result", result);
 		}else if(a_Joystick.GetRawButton(4)){
-			result = a_LRC.SetColor(0, 0, 255, 0);
+			result = a_LRC.SetColor(0, 0, 60, 0);
 			SmartDashboard::PutBoolean("I2C result", result);
 		}else if(a_Joystick.GetRawButton(5)){
-			result = a_LRC.SetColor(0, 0, 0, 255);
+			result = a_LRC.SetColor(0, 0, 0, 60);
+			SmartDashboard::PutBoolean("I2C result", result);
+		}else if(a_Joystick.GetRawButton(6)){
+			result = a_LRC.SetColor(0, 255, 255, 255);
 			SmartDashboard::PutBoolean("I2C result", result);
 		}
-	 */
 
 	/*
 		bool processImage = a_Joystick.GetRawButton(1);
