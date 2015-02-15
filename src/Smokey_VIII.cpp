@@ -70,7 +70,8 @@ void Smokey_VIII::TestPeriodic(void) {
 	double stickZ = a_Joystick.GetZ();
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
-	a_DS.SendDouble("Stick X", stickX);
+	a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
+	a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
