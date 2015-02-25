@@ -6,6 +6,9 @@
 #include "LightRingController.h"
 #include "Lifterino.h"
 #include "DumbDashboard.h"
+#include "Tongue.h"
+#include "JakeGyro.h"
+#include "I2C.h"
 
 enum AutoState {
 	kGrabbing = 0,
@@ -37,7 +40,7 @@ private:
 	CANTalon   a_BRmotor;
 	RobotDrive a_Drive;
 
-	Talon a_Tongue;
+	Tongue a_Tongue;
 
 	Compressor   a_Compressor;
 
@@ -45,7 +48,7 @@ private:
 
 	BuiltInAccelerometer a_Accel;
 
-	Gyro a_Gyro;
+	// JakeGyro a_JakeGyro;
 
 	LightRingController a_LRC;
 	Lifterino a_Lifter;
@@ -53,6 +56,7 @@ private:
 	PowerDistributionPanel a_PDP;
 
 	DumbDashboard a_DS;
+	Encoder a_DriveEncoder;
 };
 
 #endif // SMOKEY_VIII_H

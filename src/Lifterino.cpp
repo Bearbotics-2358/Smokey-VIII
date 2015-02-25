@@ -106,6 +106,86 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	a_State = nextState;
 }
 
+void Lifterino::AutonUpdate(void) {
+	LifterinoState nextState = a_State;
+	if(a_State == kIdleWithTote)
+	{
+		a_State = kRelease;
+	}
+	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
+	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
+	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
+	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
+	SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
+	SmartDashboard::PutNumber("Lifter State", a_State);
+
+	if(!a_LifterSwitch.Get()) {
+		a_Encoder.Reset();
+	}
+
+	// State Machine
+	switch(a_State){
+	case kFindZero:
+		a_LifterC.Set(-0.1);
+		if(!a_LifterSwitch.Get()) {
+			nextState = kNoTotes;
+			a_PID.Enable();
+		}
+		break;
+
+	case kNoTotes:
+			nextState = kGrip;
+		break;
+
+	case kGrip:
+		a_Grip.Set(DoubleSolenoid::kForward);
+		a_Timer.Reset();
+		a_Timer.Start();
+		nextState = kGripDelay;
+		break;
+
+	case kRelease:
+		a_Grip.Set(DoubleSolenoid::kReverse);
+		a_Timer.Reset();
+		a_Timer.Start();
+		nextState = kReleaseDelay;
+		break;
+
+	case kGripDelay:
+		if(a_Timer.Get() >= 1 ){
+			nextState = kLift;
+		}
+		break;
+
+	case kLift:
+		a_PID.SetSetpoint(TOP_LIFTER_SETPOINT);
+		if(a_PID.OnTarget()) {
+			nextState = kIdleWithTote;
+		}
+		break;
+
+	case kIdleWithTote:
+
+		break;
+
+	case kLower:
+		a_PID.SetSetpoint(BOTTOM_LIFTER_SETPOINT);
+		if(a_PID.OnTarget()){
+			nextState = kGrip;
+		}
+		break;
+
+	case kReleaseDelay:
+		if(a_Timer.Get() >= 1){
+			nextState = kLower;
+		}
+		break;
+
+	}
+
+	a_State = nextState;
+}
+
 void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
@@ -135,7 +215,8 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		a_PID.SetSetpoint(30);
 	}else if(stick2.GetRawButton(11)){
 		SetEnabled(true);
-		a_PID.SetSetpoint(40);
+		a_PID.SetSetpoint(40
+				);
 	}
 
 
@@ -160,9 +241,9 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 
 void Lifterino::Reset(void) {
 	a_PID.Disable();
+	a_Grip.Set(DoubleSolenoid::kReverse);
 	a_PID.SetSetpoint(0.0);
 	a_State = kFindZero;
-	a_Grip.Set(DoubleSolenoid::kReverse);
 
 }
 
@@ -171,5 +252,4 @@ void Lifterino::SetEnabled(bool enable)
 	a_enabled = enable;
 	(enable) ? a_PID.Enable() : a_PID.Disable();
 }
-
 

@@ -1,6 +1,9 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
 
+int a_Case = 0;
+int numOfIterations = 0;
+int
 
 Smokey_VIII::Smokey_VIII(void)
 : a_Joystick(JOYSTICK_PORT),
@@ -10,20 +13,22 @@ Smokey_VIII::Smokey_VIII(void)
   a_BLmotor(BL_PORT),
   a_BRmotor(BR_PORT),
   a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
-  a_Tongue(TONGUE_PORT),
+  a_Tongue(),
   a_Compressor(),
   // a_Detectorino(DETECTOR_IP),
   a_Accel(Accelerometer::kRange_4G),
-  a_Gyro(GYRO_PORT),
+  // a_JakeGyro(I2C::kMXP),
   a_LRC(),
   a_Lifter(),
   a_PDP(),
-  a_DS()
+  a_DS(),
+  a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X)
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
-	a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
-	a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
+	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
+	//a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
+
 }
 
 void Smokey_VIII::RobotInit(void) {
@@ -49,7 +54,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 
-	a_Tongue.Set(0);
+	//a_Tongue.Set(0);
 
 
 }
@@ -63,19 +68,20 @@ void Smokey_VIII::TestInit(void) {
 
 void Smokey_VIII::TestPeriodic(void) {
 	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
+	a_Tongue.TestUpdate(a_Joystick, a_Joystick2);
 
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
 
-	a_Tongue.Set(0);
+	//a_Tongue.Set(0);
 
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
 	if(stickZ < 0 && stickZ > -0.3) {
-			stickZ = 0;
-		}
+		stickZ = 0;
+	}
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
 	a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
@@ -85,22 +91,23 @@ void Smokey_VIII::TestPeriodic(void) {
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
 	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
+	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetRaw());
+	SmartDashboard::PutBoolean("compressor", a_Compressor.GetClosedLoopControl());
 
-
-		bool result = false;
-		if(a_Joystick.GetRawButton(3)){
-			result = a_LRC.SetColor(0, 60, 0, 0);
-			SmartDashboard::PutBoolean("I2C result", result);
-		}else if(a_Joystick.GetRawButton(4)){
-			result = a_LRC.SetColor(0, 0, 60, 0);
-			SmartDashboard::PutBoolean("I2C result", result);
-		}else if(a_Joystick.GetRawButton(5)){
-			result = a_LRC.SetColor(0, 0, 0, 60);
-			SmartDashboard::PutBoolean("I2C result", result);
-		}else if(a_Joystick.GetRawButton(6)){
-			result = a_LRC.SetColor(0, 255, 255, 255);
-			SmartDashboard::PutBoolean("I2C result", result);
-		}
+	bool result = false;
+	if(a_Joystick.GetRawButton(3)){
+		result = a_LRC.SetColor(0, 60, 0, 0);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}else if(a_Joystick.GetRawButton(4)){
+		result = a_LRC.SetColor(0, 0, 60, 0);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}else if(a_Joystick.GetRawButton(5)){
+		result = a_LRC.SetColor(0, 0, 0, 60);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}else if(a_Joystick.GetRawButton(6)){
+		result = a_LRC.SetColor(0, 255, 255, 255);
+		SmartDashboard::PutBoolean("I2C result", result);
+	}
 
 	/*
 		bool processImage = a_Joystick.GetRawButton(1);
@@ -116,11 +123,62 @@ void Smokey_VIII::TestPeriodic(void) {
 }
 
 void Smokey_VIII::AutonomousInit(void) {
-	//a_Lifter.Reset();
+	a_Lifter.Reset();
+	// a_Lifter.SetEnabled(true);
+	a_Lifter.SetEnabled(false);
+
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
-
+	switch (a_Case)
+		{
+			case 0: // Extends tongue and retracts it- grabs bin
+				if(numOfIterations == 2)
+				{
+					a_Tongue.Extend();
+					a_Case = 4;
+				}
+				else{
+				a_Tongue.Extend();
+				a_Case = 1;
+				}
+			break;
+			case 1: // Lifts a grabbed bin
+				a_Lifter.AutonUpdate();
+				a_Case = 2;
+			break;
+			case 2: // Moves the bot about 3 feet left
+				do{
+					a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+				}while(a_DriveEncoder.GetRaw() <= 270);
+				a_Case = 3;
+			break;
+			case 3: // Vision code implementation needed here
+				//Slow down until the tote is detected, stop when it is
+				a_Case = 0;
+				numOfIterations ++;
+			break;
+			case 4: // Turn the bot
+				do{
+					a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 1.0, 0.0);
+				}while(a_JakeGyro.Get() <= 90);
+				a_Case = 5;
+			break;
+			case 5: // Move 6 feet into auto zone
+				do{
+					a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+				}while(a_DriveEncoder.GetRaw() <= 540);
+				a_Case = 6;
+			break;
+			case 6: // Let go and back away
+				a_Lifter.Reset();
+				for(int i = 0; i < 100; i ++)
+				{
+					a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+				}
+				a_Case = -99;
+			break;
+		}
 }
 
 START_ROBOT_CLASS(Smokey_VIII);

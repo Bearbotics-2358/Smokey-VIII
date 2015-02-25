@@ -24,6 +24,7 @@ public:
 	void TestUpdate(Joystick &stick, Joystick &stick2);
 	void Reset(void);
 	void SetEnabled(bool enable);
+	void AutonUpdate(void);
 
 private:
 	const double TOP_LIFTER_SETPOINT = 50.0;
