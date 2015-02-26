@@ -14,9 +14,11 @@ enum AutoState {
 	kGrabbing = 0,
 	kFindingTote,
 	kDrivingToAutoZone,
-	kPlacing,
 	kBacking,
-	kIdle
+	kIdle,
+	kTurningBot,
+	kLifting,
+	kMoveToNext
 
 };
 
@@ -57,6 +59,9 @@ private:
 
 	DumbDashboard a_DS;
 	Encoder a_DriveEncoder;
+
+	Timer a_AutonTimer;
+	AutoState a_AutonState;
 };
 
 #endif // SMOKEY_VIII_H

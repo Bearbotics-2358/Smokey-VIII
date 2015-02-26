@@ -112,17 +112,9 @@ void Lifterino::AutonUpdate(void) {
 	{
 		a_State = kRelease;
 	}
-	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
-	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
-	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
-	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
-	SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
-	SmartDashboard::PutNumber("Lifter State", a_State);
-
 	if(!a_LifterSwitch.Get()) {
 		a_Encoder.Reset();
 	}
-
 	// State Machine
 	switch(a_State){
 	case kFindZero:

@@ -4,7 +4,9 @@
 Tongue::Tongue()
 : a_TonguePiston(TONGUE_EXTEND_PORT, TONGUE_RETRACT_PORT),
   a_TongueMotor(TONGUE_PORT),
-  a_TongueFrontSwitch(TONGUE_SWITCH_PORT)
+  a_TongueFrontSwitch(TONGUE_SWITCH_PORT),
+  a_TongueBackSwitch(TONGUE_BACK_SWITCH_PORT),
+  a_TongueState(kTongueIdle)
 {
 
 }
@@ -13,11 +15,40 @@ void Tongue::Update(Joystick &stick, Joystick &stick2) {
 
 }
 
-void Tongue::Extend()
+void Tongue::Extend(bool startingLoop)
 {
+	if(startingLoop)
+		{
+			a_TongueState = kExtending;
+		}
+	switch (a_TongueState) {
+	case kExtending:
+		startingLoop = false;
+		if(a_TongueBackSwitch)
+		{
+			a_TongueMotor.Set(.5);
+		}
+		else
+		{
+			a_TongueState = kRetracting;
+		}
+		break;
 
+	case kRetracting:
+		if(a_TongueFrontSwitch)
+		{
+			a_TongueMotor.Set(-.5);
+		}
+		else
+		{
+			a_TongueState = kTongueIdle;
+		}
+		break;
+
+	case kTongueIdle:
+		break;
+	}
 }
-
 
 void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
 	if(a_TongueFrontSwitch.Get())

@@ -1,9 +1,8 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
 
-int a_Case = 0;
 int numOfIterations = 0;
-int
+
 
 Smokey_VIII::Smokey_VIII(void)
 : a_Joystick(JOYSTICK_PORT),
@@ -22,7 +21,9 @@ Smokey_VIII::Smokey_VIII(void)
   a_Lifter(),
   a_PDP(),
   a_DS(),
-  a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X)
+  a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X),
+  a_AutonTimer(),
+  a_AutonState(kGrabbing)
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
@@ -130,55 +131,75 @@ void Smokey_VIII::AutonomousInit(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
-	switch (a_Case)
-		{
-			case 0: // Extends tongue and retracts it- grabs bin
-				if(numOfIterations == 2)
-				{
-					a_Tongue.Extend();
-					a_Case = 4;
-				}
-				else{
-				a_Tongue.Extend();
-				a_Case = 1;
-				}
-			break;
-			case 1: // Lifts a grabbed bin
-				a_Lifter.AutonUpdate();
-				a_Case = 2;
-			break;
-			case 2: // Moves the bot about 3 feet left
-				do{
-					a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
-				}while(a_DriveEncoder.GetRaw() <= 270);
-				a_Case = 3;
-			break;
-			case 3: // Vision code implementation needed here
-				//Slow down until the tote is detected, stop when it is
-				a_Case = 0;
-				numOfIterations ++;
-			break;
-			case 4: // Turn the bot
-				do{
-					a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 1.0, 0.0);
-				}while(a_JakeGyro.Get() <= 90);
-				a_Case = 5;
-			break;
-			case 5: // Move 6 feet into auto zone
-				do{
-					a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
-				}while(a_DriveEncoder.GetRaw() <= 540);
-				a_Case = 6;
-			break;
-			case 6: // Let go and back away
-				a_Lifter.Reset();
-				for(int i = 0; i < 100; i ++)
-				{
-					a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
-				}
-				a_Case = -99;
-			break;
+	switch (a_AutonState) {
+
+	case kGrabbing: // Extends tongue and retracts it- grabs bin
+		if(numOfIterations == 2) {
+			a_Tongue.Extend(true);
+			a_AutonState = kTurningBot;
+		}else {
+			a_Tongue.Extend(true);
+			a_AutonState = kLifting;
 		}
+		break;
+
+	case kLifting: // Lifts a grabbed bin
+		a_Lifter.AutonUpdate();
+		a_AutonState = kMoveToNext;
+		break;
+
+	case kMoveToNext: // Moves the bot about 3 feet left
+		a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+		if(a_DriveEncoder.GetRaw() >= 270)
+		{
+			a_AutonState = kFindingTote;
+		}
+		break;
+
+	case kFindingTote: // Vision code implementation needed here
+		//Slow down until the tote is detected, stop when it is
+		a_AutonState = kGrabbing;
+		numOfIterations ++;
+		break;
+
+	case kTurningBot: // Turn the bot
+		if(a_JakeGyro.Get() <= 90){
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 1.0, 0.0);
+		}
+		else
+		{
+		a_AutonState = kDrivingToAutoZone;
+		}
+		break;
+
+	case kDrivingToAutoZone: // Move 6 feet into auto zone
+		if(a_DriveEncoder.GetRaw() <= 540)
+		{
+			a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+		}
+		else
+		{
+			a_AutonState = kBacking;
+			a_AutonTimer.Reset();
+			a_AutonTimer.Start();
+		}
+		break;
+
+	case kBacking: // Let go and back away
+		a_Lifter.Reset();
+		if(a_AutonTimer.Get() <= 1)
+		{
+			a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+		}
+		else
+		{
+		a_AutonState = kIdle;
+		}
+		break;
+
+	case kIdle:
+		break;
+	}
 }
 
 START_ROBOT_CLASS(Smokey_VIII);
