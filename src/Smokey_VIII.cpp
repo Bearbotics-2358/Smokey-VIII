@@ -3,7 +3,6 @@
 
 int numOfIterations = 0;
 
-
 Smokey_VIII::Smokey_VIII(void)
 : a_Joystick(JOYSTICK_PORT),
   a_Joystick2(JOYSTICKTWO_PORT),
@@ -16,7 +15,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_Compressor(),
   // a_Detectorino(DETECTOR_IP),
   a_Accel(Accelerometer::kRange_4G),
-  // a_JakeGyro(I2C::kMXP),
+  //a_JakeGyro(I2C::kMXP),
   a_LRC(),
   a_Lifter(),
   a_PDP(),
@@ -25,6 +24,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_AutonTimer(),
   a_AutonState(kGrabbing)
 {
+
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
@@ -55,7 +55,6 @@ void Smokey_VIII::TeleopPeriodic(void) {
 
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 
-	//a_Tongue.Set(0);
 
 
 }
@@ -148,8 +147,8 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		a_AutonState = kMoveToNext;
 		break;
 
-	case kMoveToNext: // Moves the bot about 3 feet left
-		a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+	case kMoveToNext: // Moves the bot about 3 feet right
+		a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
 		if(a_DriveEncoder.GetRaw() >= 270)
 		{
 			a_AutonState = kFindingTote;
@@ -160,22 +159,26 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		//Slow down until the tote is detected, stop when it is
 		a_AutonState = kGrabbing;
 		numOfIterations ++;
+		a_DriveEncoder.Reset();
 		break;
 
 	case kTurningBot: // Turn the bot
-		if(a_JakeGyro.Get() <= 90){
+		a_Tongue.Raise();
+		/*
+		if(a_JakeGyro.Get() >= -90){
 			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 1.0, 0.0);
 		}
 		else
-		{
+		{*/
+		a_DriveEncoder.Reset();
 		a_AutonState = kDrivingToAutoZone;
-		}
+		//}
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
 		if(a_DriveEncoder.GetRaw() <= 540)
 		{
-			a_Drive.MecanumDrive_Cartesian(-1.0, 0.0, 0.0, 0.0);
+			a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
 		}
 		else
 		{

@@ -1,16 +1,8 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2008. All Rights Reserved.							  */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in $(WIND_BASE)/WPILib.  */
-/*----------------------------------------------------------------------------*/
-
 #include "JakeGyro.h"
 #include "I2C.h"
 #include "HAL/HAL.hpp"
 #include "LiveWindow/LiveWindow.h"
 #include "Prefs.h"
-
-// #include <stdio.h>
 
 const uint8_t JakeGyro::kPowerCtlRegister;
 const uint8_t JakeGyro::kDataFormatRegister;
@@ -23,10 +15,10 @@ constexpr double JakeGyro::kGsPerLSB;
  * @param port The I2C port the gyro is attached to
  */
 JakeGyro::JakeGyro(Port port):
-		I2C(port, JAKE_GYRO_ADDRESS)
+		I2C(port, JAKE_GYRO_ADDRESS),
+		m_table()
 {
 		uint8_t Buff[1];
-
 		//m_i2c = new I2C((I2C::Port)port, kAddress);
 		Read(0, 1, Buff);
 		SmartDashboard::PutNumber("Jake Buff", Buff[0]);
@@ -50,36 +42,26 @@ JakeGyro::~JakeGyro()
 	//m_i2c = NULL;
 }
 
-/** {@inheritdoc} */
 void JakeGyro::SetRange(Range range)
 {
 	Write(kDataFormatRegister, kDataFormat_FullRes | (uint8_t)range);
 }
 
-/** {@inheritdoc} */
 double JakeGyro::GetX()
 {
 	return GetAcceleration(kAxis_X);
 }
 
-/** {@inheritdoc} */
 double JakeGyro::GetY()
 {
 	return GetAcceleration(kAxis_Y);
 }
 
-/** {@inheritdoc} */
 double JakeGyro::GetZ()
 {
 	return GetAcceleration(kAxis_Z);
 }
 
-/**
- * Get the acceleration of one axis in Gs.
- *
- * @param axis The axis to read from.
- * @return Acceleration of the ADXL345 in Gs.
- */
 double JakeGyro::GetAcceleration(JakeGyro::Axes axis)
 {
 	int16_t rawAccel = 0;
@@ -125,6 +107,7 @@ void JakeGyro::UpdateTable() {
 		m_table->PutNumber("Y", GetY());
 		m_table->PutNumber("Z", GetZ());
 	}
+
 }
 
 ITable* JakeGyro::GetTable() {

@@ -50,7 +50,7 @@ private:
 
 	BuiltInAccelerometer a_Accel;
 
-	// JakeGyro a_JakeGyro;
+	//JakeGyro a_JakeGyro;
 
 	LightRingController a_LRC;
 	Lifterino a_Lifter;

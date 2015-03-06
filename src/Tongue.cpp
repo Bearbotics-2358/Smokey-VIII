@@ -15,6 +15,10 @@ void Tongue::Update(Joystick &stick, Joystick &stick2) {
 
 }
 
+void Tongue::Raise() {
+	a_TonguePiston.Set(DoubleSolenoid::kForward);
+}
+
 void Tongue::Extend(bool startingLoop)
 {
 	if(startingLoop)
@@ -24,7 +28,7 @@ void Tongue::Extend(bool startingLoop)
 	switch (a_TongueState) {
 	case kExtending:
 		startingLoop = false;
-		if(a_TongueBackSwitch)
+		if(a_TongueBackSwitch.Get())
 		{
 			a_TongueMotor.Set(.5);
 		}
@@ -35,7 +39,7 @@ void Tongue::Extend(bool startingLoop)
 		break;
 
 	case kRetracting:
-		if(a_TongueFrontSwitch)
+		if(a_TongueFrontSwitch.Get())
 		{
 			a_TongueMotor.Set(-.5);
 		}
@@ -51,25 +55,20 @@ void Tongue::Extend(bool startingLoop)
 }
 
 void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
-	if(a_TongueFrontSwitch.Get())
-	{
-		if(stick.GetRawButton(11)){
-			a_TongueMotor.Set(-1.0);
-		}
-	}
-	if(stick.GetRawButton(12)){
+
+	if(stick.GetRawButton(11)) {
+		a_TongueMotor.Set(-1.0);
+	}else if(stick.GetRawButton(12)) {
 		a_TongueMotor.Set(1.0);
-	}
-	else{
+	}else {
 		a_TongueMotor.Set(0.0);
 	}
 
-	// a_TongueMotor.Set(stick2.GetX());
 	if(!a_TongueFrontSwitch.Get())
 	{
-		if(stick2.GetRawButton(4)){
+		if(stick2.GetRawButton(4)) {
 			a_TonguePiston.Set(DoubleSolenoid::kForward);
-		}else if(stick2.GetRawButton(5)){
+		}else if(stick2.GetRawButton(5)) {
 			a_TonguePiston.Set(DoubleSolenoid::kReverse);
 		}
 	}
