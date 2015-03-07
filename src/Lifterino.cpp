@@ -20,7 +20,7 @@ Lifterino::Lifterino()
 
 	a_PID.SetOutputRange(-.2, 1.0);
 	a_PID.SetAbsoluteTolerance(1.0);
-	a_PID.SetInputRange(0, 51);
+	a_PID.SetInputRange(0, 70);
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
@@ -207,8 +207,7 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		a_PID.SetSetpoint(30);
 	}else if(stick2.GetRawButton(11)){
 		SetEnabled(true);
-		a_PID.SetSetpoint(40
-				);
+		a_PID.SetSetpoint(40);
 	}
 
 

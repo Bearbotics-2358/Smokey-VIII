@@ -1,5 +1,6 @@
 #include "Tongue.h"
 #include "Prefs.h"
+#include "Utilities.h"
 
 Tongue::Tongue()
 : a_TonguePiston(TONGUE_EXTEND_PORT, TONGUE_RETRACT_PORT),
@@ -55,11 +56,13 @@ void Tongue::Extend(bool startingLoop)
 }
 
 void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
+	double ForwardSpeed = GetSmartDashboardNumber("TongueForward", -1);
+	double BackwardSpeed = GetSmartDashboardNumber("TongueBackward", 1);
 
 	if(stick.GetRawButton(11)) {
-		a_TongueMotor.Set(-1.0);
+		a_TongueMotor.Set(ForwardSpeed);
 	}else if(stick.GetRawButton(12)) {
-		a_TongueMotor.Set(1.0);
+		a_TongueMotor.Set(BackwardSpeed);
 	}else {
 		a_TongueMotor.Set(0.0);
 	}

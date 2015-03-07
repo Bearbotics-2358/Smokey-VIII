@@ -27,7 +27,7 @@ public:
 	void AutonUpdate(void);
 
 private:
-	const double TOP_LIFTER_SETPOINT = 50.0;
+	const double TOP_LIFTER_SETPOINT = 65.0;
 	const double BOTTOM_LIFTER_SETPOINT = 3.0;
 
 	Talon a_Rlifter;
@@ -45,8 +45,9 @@ private:
 
 	PIDController a_PID;
 
-	float P = 0.225;
-	float I = 0.02592;
+	//operating on field 3/7 When slider
+	float P = 0.1;
+	float I = 0.0;
 	float D = 0.0;
 	bool a_enabled;
 };

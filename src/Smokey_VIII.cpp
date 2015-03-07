@@ -13,7 +13,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
   a_Tongue(),
   a_Compressor(),
-  // a_Detectorino(DETECTOR_IP),
+  a_Detectorino(DETECTOR_IP),
   a_Accel(Accelerometer::kRange_4G),
   //a_JakeGyro(I2C::kMXP),
   a_LRC(),
@@ -29,6 +29,8 @@ Smokey_VIII::Smokey_VIII(void)
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
+	a_DriveEncoder.SetDistancePerPulse(0.13962634015954637); //4pi/90
+
 
 }
 
@@ -63,7 +65,7 @@ void Smokey_VIII::TestInit(void) {
 	a_Lifter.Reset();
 	// a_Lifter.SetEnabled(true);
 	a_Lifter.SetEnabled(false);
-
+	a_LRC.SetColor(0, 25, 0, 25);
 }
 
 void Smokey_VIII::TestPeriodic(void) {
@@ -91,7 +93,7 @@ void Smokey_VIII::TestPeriodic(void) {
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
 	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
-	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetRaw());
+	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
 	SmartDashboard::PutBoolean("compressor", a_Compressor.GetClosedLoopControl());
 
 	bool result = false;
@@ -124,7 +126,6 @@ void Smokey_VIII::TestPeriodic(void) {
 
 void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.Reset();
-	// a_Lifter.SetEnabled(true);
 	a_Lifter.SetEnabled(false);
 
 }
@@ -156,10 +157,13 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		//Slow down until the tote is detected, stop when it is
-		a_AutonState = kGrabbing;
-		numOfIterations ++;
-		a_DriveEncoder.Reset();
+		a_Drive.MecanumDrive_Cartesian(.25, 0.0, 0.0, 0.0);
+		if(a_Detectorino.CheckForTote(true))
+		{
+			a_AutonState = kGrabbing;
+			numOfIterations ++;
+			a_DriveEncoder.Reset();
+		}
 		break;
 
 	case kTurningBot: // Turn the bot
@@ -190,7 +194,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 
 	case kBacking: // Let go and back away
 		a_Lifter.Reset();
-		if(a_AutonTimer.Get() <= 1)
+		if(a_AutonTimer.Get() <= 3)
 		{
 			a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
 		}

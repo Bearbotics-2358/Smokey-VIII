@@ -46,13 +46,14 @@ private:
 
 	Compressor   a_Compressor;
 
-	// ToteDetector a_Detectorino;
+	ToteDetector a_Detectorino;
 
 	BuiltInAccelerometer a_Accel;
 
 	//JakeGyro a_JakeGyro;
 
 	LightRingController a_LRC;
+
 	Lifterino a_Lifter;
 
 	PowerDistributionPanel a_PDP;
