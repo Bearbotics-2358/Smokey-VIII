@@ -22,44 +22,50 @@ void Tongue::Raise() {
 
 void Tongue::Extend(bool startingLoop)
 {
+	int tongue_back_int = 0;
 	if(startingLoop)
 		{
 			a_TongueState = kExtending;
 		}
+	TongueState nextState = a_TongueState;
 	switch (a_TongueState) {
 	case kExtending:
+		tongue_back_int = (int)a_TongueBackSwitch.Get();
+		SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+		SmartDashboard::PutString("Tongue State: ", "Extending");
+		SmartDashboard::PutNumber("Tongue Back Switch int", tongue_back_int );
 		startingLoop = false;
-		if(a_TongueBackSwitch.Get())
-		{
-			a_TongueMotor.Set(.5);
-		}
-		else
-		{
-			a_TongueState = kRetracting;
+		if(tongue_back_int) {
+			a_TongueMotor.Set(-0.5);
+		} else {
+			nextState = kRetracting;
 		}
 		break;
 
 	case kRetracting:
-		if(a_TongueFrontSwitch.Get())
+		SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+		SmartDashboard::PutString("Tongue State: ", "Retracting");
+		if(a_TongueFrontSwitch.Get() == true)
 		{
-			a_TongueMotor.Set(-.5);
+			a_TongueMotor.Set(0.5);
 		}
 		else
 		{
-			a_TongueState = kTongueIdle;
+			nextState = kTongueIdle;
 		}
 		break;
 
 	case kTongueIdle:
 		break;
 	}
+	a_TongueState = nextState;
 }
 
 void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
 	double ForwardSpeed = GetSmartDashboardNumber("TongueForward", -1);
-	double BackwardSpeed = GetSmartDashboardNumber("TongueBackward", 1);
+	double BackwardSpeed = GetSmartDashboardNumber("TongueBackward", 0.5);
 
-	if(stick.GetRawButton(11)) {
+	if(stick.GetRawButton(11) && a_TonguePiston.Get() == DoubleSolenoid::kForward) {
 		a_TongueMotor.Set(ForwardSpeed);
 	}else if(stick.GetRawButton(12)) {
 		a_TongueMotor.Set(BackwardSpeed);
@@ -75,5 +81,10 @@ void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
 			a_TonguePiston.Set(DoubleSolenoid::kReverse);
 		}
 	}
-	SmartDashboard::PutBoolean("Tongue Switch", a_TongueFrontSwitch.Get());
+	SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
+	SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+}
+
+TongueState Tongue::GetState() {
+	return a_TongueState;
 }

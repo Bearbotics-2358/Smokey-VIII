@@ -21,7 +21,6 @@ JakeGyro::JakeGyro(Port port):
 		uint8_t Buff[1];
 		//m_i2c = new I2C((I2C::Port)port, kAddress);
 		Read(0, 1, Buff);
-		SmartDashboard::PutNumber("Jake Buff", Buff[0]);
 		// printf("Jake Buff: %2.2X\n", Buff[0] & 0x00ff);
 
 		// Turn on the measurements
@@ -33,9 +32,6 @@ JakeGyro::JakeGyro(Port port):
 		// LiveWindow::GetInstance()->AddSensor("JakeGyro", port, this);
 }
 
-/**
- * Destructor.
- */
 JakeGyro::~JakeGyro()
 {
 	//delete m_i2c;

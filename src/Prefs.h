@@ -38,5 +38,7 @@
 
 #define ENCODER_CONSTANT 90
 #define MECANUM_CIRCUMFERENCE 12.56637
+#define THREE_FEET 81
+#define SIX_FEET 162
 
 #endif

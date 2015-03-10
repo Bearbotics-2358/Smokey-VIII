@@ -1,5 +1,6 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
+#include <Math.h>
 
 int numOfIterations = 0;
 
@@ -24,19 +25,15 @@ Smokey_VIII::Smokey_VIII(void)
   a_AutonTimer(),
   a_AutonState(kGrabbing)
 {
-
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
-	a_DriveEncoder.SetDistancePerPulse(0.13962634015954637); //4pi/90
-
-
+	a_DriveEncoder.SetDistancePerPulse(((4.0 * M_PI) / 90.0) * (162.0 / 150.0));
 }
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-
 	a_Drive.SetExpiration(0.5);
 }
 
@@ -46,19 +43,15 @@ void Smokey_VIII::TeleopInit(void) {
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
-
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
+
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
-
 	a_Lifter.Update(a_Joystick, a_Joystick2);
-
-
-
 }
 
 void Smokey_VIII::TestInit(void) {
@@ -131,28 +124,31 @@ void Smokey_VIII::AutonomousInit(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
+	AutoState nextState = a_AutonState;
 	switch (a_AutonState) {
 
 	case kGrabbing: // Extends tongue and retracts it- grabs bin
 		if(numOfIterations == 2) {
 			a_Tongue.Extend(true);
-			a_AutonState = kTurningBot;
+			nextState = kTurningBot;
 		}else {
 			a_Tongue.Extend(true);
-			a_AutonState = kLifting;
+			if(a_Tongue.GetState() == TongueState::kTongueIdle) {
+				nextState = kLifting;
+			}
 		}
 		break;
 
 	case kLifting: // Lifts a grabbed bin
 		a_Lifter.AutonUpdate();
-		a_AutonState = kMoveToNext;
+		nextState = kMoveToNext;
 		break;
 
 	case kMoveToNext: // Moves the bot about 3 feet right
 		a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
-		if(a_DriveEncoder.GetRaw() >= 270)
+		if(a_DriveEncoder.GetDistance() >= THREE_FEET)
 		{
-			a_AutonState = kFindingTote;
+			nextState = kFindingTote;
 		}
 		break;
 
@@ -160,7 +156,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		a_Drive.MecanumDrive_Cartesian(.25, 0.0, 0.0, 0.0);
 		if(a_Detectorino.CheckForTote(true))
 		{
-			a_AutonState = kGrabbing;
+			nextState = kGrabbing;
 			numOfIterations ++;
 			a_DriveEncoder.Reset();
 		}
@@ -175,18 +171,19 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		else
 		{*/
 		a_DriveEncoder.Reset();
-		a_AutonState = kDrivingToAutoZone;
+		nextState = kDrivingToAutoZone;
 		//}
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
-		if(a_DriveEncoder.GetRaw() <= 540)
+		if(a_DriveEncoder.GetDistance() <= SIX_FEET)
 		{
-			a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
+			//a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
+			a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
 		}
 		else
 		{
-			a_AutonState = kBacking;
+			nextState = kBacking;
 			a_AutonTimer.Reset();
 			a_AutonTimer.Start();
 		}
@@ -200,13 +197,14 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		}
 		else
 		{
-		a_AutonState = kIdle;
+			nextState = kIdle;
 		}
 		break;
 
 	case kIdle:
 		break;
 	}
+	a_AutonState = nextState;
 }
 
 START_ROBOT_CLASS(Smokey_VIII);

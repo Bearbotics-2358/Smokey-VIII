@@ -21,12 +21,18 @@ Lifterino::Lifterino()
 	a_PID.SetOutputRange(-.2, 1.0);
 	a_PID.SetAbsoluteTolerance(1.0);
 	a_PID.SetInputRange(0, 70);
+
+
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	bool liftButton = stick.GetRawButton(1);
 
 	LifterinoState nextState = a_State;
+
+	SmartDashboard::PutNumber("P", P);
+		SmartDashboard::PutNumber("I", I);
+		SmartDashboard::PutNumber("D", D);
 
 	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
@@ -110,7 +116,7 @@ void Lifterino::AutonUpdate(void) {
 	LifterinoState nextState = a_State;
 	if(a_State == kIdleWithTote)
 	{
-		a_State = kRelease;
+		nextState = kRelease;
 	}
 	if(!a_LifterSwitch.Get()) {
 		a_Encoder.Reset();
@@ -216,7 +222,7 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 	D = GetSmartDashboardNumber("D", D);
 
 	if(stick2.GetRawButton(6)){
-	a_PID.SetPID(P, I, D);
+		a_PID.SetPID(P, I, D);
 	}
 
 	if(!a_enabled) {

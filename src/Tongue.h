@@ -15,6 +15,7 @@ public:
 	void TestUpdate(Joystick &stick, Joystick &stick2);
 	void Extend(bool startingLoop);
 	void Raise();
+	TongueState GetState();
 
 private:
 	DoubleSolenoid a_TonguePiston;
