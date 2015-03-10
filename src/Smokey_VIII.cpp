@@ -52,6 +52,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 	a_Lifter.Update(a_Joystick, a_Joystick2);
+	a_Tongue.TestUpdate(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TestInit(void) {
@@ -77,10 +78,11 @@ void Smokey_VIII::TestPeriodic(void) {
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
+
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 
-	a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
-	a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
+	//a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
+	//a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
@@ -120,7 +122,7 @@ void Smokey_VIII::TestPeriodic(void) {
 void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.Reset();
 	a_Lifter.SetEnabled(false);
-
+	a_Tongue.InitAuto();
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
@@ -129,10 +131,10 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 
 	case kGrabbing: // Extends tongue and retracts it- grabs bin
 		if(numOfIterations == 2) {
-			a_Tongue.Extend(true);
+			a_Tongue.UpdateAuto();
 			nextState = kTurningBot;
 		}else {
-			a_Tongue.Extend(true);
+			a_Tongue.UpdateAuto();
 			if(a_Tongue.GetState() == TongueState::kTongueIdle) {
 				nextState = kLifting;
 			}

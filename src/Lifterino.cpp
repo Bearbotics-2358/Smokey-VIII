@@ -9,6 +9,7 @@ Lifterino::Lifterino()
  a_Grip(GRIPPER_EXTEND_SOLENOID, GRIPPER_RETRACT_SOLENOID),
  a_Encoder(LIFT_ENCODER_PORT_1, LIFT_ENCODER_PORT_2, true, Encoder::k4X),
  a_State(kNoTotes),
+ a_AutoState(kNoTotes),
  a_Timer(),
  a_LifterSwitch(LIFTER_SWITCH_PORT),
  a_LifterC(a_Llifter, a_Rlifter),
@@ -30,10 +31,6 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 
 	LifterinoState nextState = a_State;
 
-	SmartDashboard::PutNumber("P", P);
-		SmartDashboard::PutNumber("I", I);
-		SmartDashboard::PutNumber("D", D);
-
 	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
 	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
@@ -50,8 +47,11 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	case kFindZero:
 		a_LifterC.Set(-0.1);
 		if(!a_LifterSwitch.Get()) {
-			nextState = kNoTotes;
+			a_LifterC.Set(0.0);
 			a_PID.Enable();
+			a_PID.SetSetpoint(0.0);
+			nextState = kNoTotes;
+
 		}
 		break;
 
@@ -113,8 +113,8 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 }
 
 void Lifterino::AutonUpdate(void) {
-	LifterinoState nextState = a_State;
-	if(a_State == kIdleWithTote)
+	LifterinoState nextState = a_AutoState;
+	if(a_AutoState == kIdleWithTote)
 	{
 		nextState = kRelease;
 	}
@@ -122,7 +122,7 @@ void Lifterino::AutonUpdate(void) {
 		a_Encoder.Reset();
 	}
 	// State Machine
-	switch(a_State){
+	switch(a_AutoState){
 	case kFindZero:
 		a_LifterC.Set(-0.1);
 		if(!a_LifterSwitch.Get()) {
@@ -181,7 +181,7 @@ void Lifterino::AutonUpdate(void) {
 
 	}
 
-	a_State = nextState;
+	a_AutoState = nextState;
 }
 
 void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
@@ -215,11 +215,6 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		SetEnabled(true);
 		a_PID.SetSetpoint(40);
 	}
-
-
-	P = GetSmartDashboardNumber("P", P);
-	I = GetSmartDashboardNumber("I", I);
-	D = GetSmartDashboardNumber("D", D);
 
 	if(stick2.GetRawButton(6)){
 		a_PID.SetPID(P, I, D);

@@ -2,6 +2,9 @@
 #include "Prefs.h"
 #include "Utilities.h"
 
+int tongue_back_int = 0;
+	int tongue_front_int = 0;
+
 Tongue::Tongue()
 : a_TonguePiston(TONGUE_EXTEND_PORT, TONGUE_RETRACT_PORT),
   a_TongueMotor(TONGUE_PORT),
@@ -9,7 +12,7 @@ Tongue::Tongue()
   a_TongueBackSwitch(TONGUE_BACK_SWITCH_PORT),
   a_TongueState(kTongueIdle)
 {
-
+	a_TonguePiston.Set(DoubleSolenoid::kForward);
 }
 
 void Tongue::Update(Joystick &stick, Joystick &stick2) {
@@ -20,42 +23,52 @@ void Tongue::Raise() {
 	a_TonguePiston.Set(DoubleSolenoid::kForward);
 }
 
-void Tongue::Extend(bool startingLoop)
+void Tongue::InitAuto()
 {
-	int tongue_back_int = 0;
-	if(startingLoop)
-		{
-			a_TongueState = kExtending;
-		}
+	a_TongueState = kExtending;
+
+}
+
+void Tongue::UpdateAuto()
+{
+	SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+	SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
+
+	tongue_back_int = (int)a_TongueBackSwitch.Get();
+
+	tongue_front_int = (int)a_TongueFrontSwitch.Get();
+
+	SmartDashboard::PutNumber("Tongue Front int", tongue_front_int);
+	SmartDashboard::PutNumber("Tongue Back int", tongue_back_int);
 	TongueState nextState = a_TongueState;
 	switch (a_TongueState) {
 	case kExtending:
-		tongue_back_int = (int)a_TongueBackSwitch.Get();
-		SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+
 		SmartDashboard::PutString("Tongue State: ", "Extending");
-		SmartDashboard::PutNumber("Tongue Back Switch int", tongue_back_int );
-		startingLoop = false;
-		if(tongue_back_int) {
-			a_TongueMotor.Set(-0.5);
-		} else {
+
+		a_TongueMotor.Set(-0.5);
+
+		if(tongue_back_int == 0) {
 			nextState = kRetracting;
 		}
 		break;
 
 	case kRetracting:
-		SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+
 		SmartDashboard::PutString("Tongue State: ", "Retracting");
-		if(a_TongueFrontSwitch.Get() == true)
-		{
-			a_TongueMotor.Set(0.5);
-		}
-		else
-		{
+
+		if(tongue_front_int == 0) {
 			nextState = kTongueIdle;
+			break;
 		}
+
+		a_TongueMotor.Set(0.5);
+
 		break;
 
 	case kTongueIdle:
+		SmartDashboard::PutString("Tongue State: ", "Idle");
+		a_TongueMotor.Set(0.0);
 		break;
 	}
 	a_TongueState = nextState;

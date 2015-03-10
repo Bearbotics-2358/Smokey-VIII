@@ -13,8 +13,9 @@ public:
 	Tongue(void);
 	void Update(Joystick &stick, Joystick &stick2);
 	void TestUpdate(Joystick &stick, Joystick &stick2);
-	void Extend(bool startingLoop);
 	void Raise();
+	void InitAuto();
+	void UpdateAuto();
 	TongueState GetState();
 
 private:

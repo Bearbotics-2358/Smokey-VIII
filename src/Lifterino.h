@@ -36,6 +36,7 @@ private:
 
 	Encoder a_Encoder;
 	LifterinoState a_State;
+	LifterinoState a_AutoState;
 
 	Timer a_Timer;
 
