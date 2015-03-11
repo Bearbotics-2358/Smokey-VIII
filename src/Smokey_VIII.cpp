@@ -129,12 +129,11 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	AutoState nextState = a_AutonState;
 	switch (a_AutonState) {
 
-	case kGrabbing: // Extends tongue and retracts it- grabs bin
+	case kGrabbing: // Extends tongue and retracts it - grabs bin
+		a_Tongue.UpdateAuto();
 		if(numOfIterations == 2) {
-			a_Tongue.UpdateAuto();
 			nextState = kTurningBot;
-		}else {
-			a_Tongue.UpdateAuto();
+		} else {
 			if(a_Tongue.GetState() == TongueState::kTongueIdle) {
 				nextState = kLifting;
 			}
@@ -147,6 +146,8 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kMoveToNext: // Moves the bot about 3 feet right
+		// Continue running lifter until completed
+		a_Lifter.AutonUpdate();
 		a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
 		if(a_DriveEncoder.GetDistance() >= THREE_FEET)
 		{
@@ -155,11 +156,10 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		a_Drive.MecanumDrive_Cartesian(.25, 0.0, 0.0, 0.0);
-		if(a_Detectorino.CheckForTote(true))
-		{
+		a_Drive.MecanumDrive_Cartesian(0.25, 0.0, 0.0, 0.0);
+		if(a_Detectorino.CheckForTote(true)) {
 			nextState = kGrabbing;
-			numOfIterations ++;
+			numOfIterations++;
 			a_DriveEncoder.Reset();
 		}
 		break;

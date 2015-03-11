@@ -35,11 +35,11 @@ void Tongue::UpdateAuto()
 	SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
 
 	tongue_back_int = (int)a_TongueBackSwitch.Get();
-
 	tongue_front_int = (int)a_TongueFrontSwitch.Get();
 
 	SmartDashboard::PutNumber("Tongue Front int", tongue_front_int);
 	SmartDashboard::PutNumber("Tongue Back int", tongue_back_int);
+
 	TongueState nextState = a_TongueState;
 	switch (a_TongueState) {
 	case kExtending:
@@ -57,12 +57,13 @@ void Tongue::UpdateAuto()
 
 		SmartDashboard::PutString("Tongue State: ", "Retracting");
 
+		a_TongueMotor.Set(0.5);
+
 		if(tongue_front_int == 0) {
 			nextState = kTongueIdle;
-			break;
+			// next state may never run, so stop motor here
+			a_TongueMotor.Set(0.0);
 		}
-
-		a_TongueMotor.Set(0.5);
 
 		break;
 
