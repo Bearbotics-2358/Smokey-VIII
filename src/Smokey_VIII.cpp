@@ -30,6 +30,7 @@ Smokey_VIII::Smokey_VIII(void)
 	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
 	//a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
 	a_DriveEncoder.SetDistancePerPulse(((4.0 * M_PI) / 90.0) * (162.0 / 150.0));
+	a_DriveEncoder.Reset();
 }
 
 void Smokey_VIII::RobotInit(void) {
@@ -60,6 +61,7 @@ void Smokey_VIII::TestInit(void) {
 	// a_Lifter.SetEnabled(true);
 	a_Lifter.SetEnabled(false);
 	a_LRC.SetColor(0, 25, 0, 25);
+	a_Tongue.lol();
 }
 
 void Smokey_VIII::TestPeriodic(void) {
@@ -123,48 +125,75 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.Reset();
 	a_Lifter.SetEnabled(false);
 	a_Tongue.InitAuto();
+	a_LRC.SetColor(0,36,72,72);
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
+	float targetX = 0;
+
 	AutoState nextState = a_AutonState;
+
+	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
+
 	switch (a_AutonState) {
 
 	case kGrabbing: // Extends tongue and retracts it - grabs bin
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 		a_Tongue.UpdateAuto();
 		if(numOfIterations == 2) {
 			nextState = kTurningBot;
 		} else {
 			if(a_Tongue.GetState() == TongueState::kTongueIdle) {
 				nextState = kLifting;
+
+				a_Lifter.Reset();
+				a_Lifter.SetEnabled(false);
 			}
 		}
 		break;
 
 	case kLifting: // Lifts a grabbed bin
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 		a_Lifter.AutonUpdate();
-		nextState = kMoveToNext;
+		if(a_Lifter.GetAutoState() == LifterinoState::kLift) {
+			nextState = kMoveToNext;
+		}
 		break;
 
 	case kMoveToNext: // Moves the bot about 3 feet right
 		// Continue running lifter until completed
 		a_Lifter.AutonUpdate();
-		a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
-		if(a_DriveEncoder.GetDistance() >= THREE_FEET)
+		a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, 0.0);
+		switch(numOfIterations) {
+		case 0:
+			targetX = THREE_FEET;
+			break;
+
+		case 1:
+			targetX = SIX_FEET;
+			break;
+
+		case 2:
+			targetX = SIX_FEET;
+			break;
+		}
+		if(a_DriveEncoder.GetDistance() >= targetX)
 		{
 			nextState = kFindingTote;
 		}
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		a_Drive.MecanumDrive_Cartesian(0.25, 0.0, 0.0, 0.0);
-		if(a_Detectorino.CheckForTote(true)) {
+		a_Drive.MecanumDrive_Cartesian(0, 0.0, 0.0, 0.0);
+		if(true || a_Detectorino.CheckForTote(true)) {
 			nextState = kGrabbing;
+			a_Tongue.InitAuto();
 			numOfIterations++;
-			a_DriveEncoder.Reset();
 		}
 		break;
 
 	case kTurningBot: // Turn the bot
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0); // Will need to remove later
 		a_Tongue.Raise();
 		/*
 		if(a_JakeGyro.Get() >= -90){
@@ -178,13 +207,14 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
-		if(a_DriveEncoder.GetDistance() <= SIX_FEET)
+		if(a_DriveEncoder.GetDistance() <= -1 * SIX_FEET)
 		{
 			//a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
-			a_Drive.MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+			a_Drive.MecanumDrive_Cartesian(-0.5, 0.0, 0.0, 0.0);
 		}
 		else
 		{
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 			nextState = kBacking;
 			a_AutonTimer.Reset();
 			a_AutonTimer.Start();
@@ -199,6 +229,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		}
 		else
 		{
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 			nextState = kIdle;
 		}
 		break;

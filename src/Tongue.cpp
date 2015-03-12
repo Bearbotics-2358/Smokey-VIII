@@ -2,9 +2,6 @@
 #include "Prefs.h"
 #include "Utilities.h"
 
-int tongue_back_int = 0;
-	int tongue_front_int = 0;
-
 Tongue::Tongue()
 : a_TonguePiston(TONGUE_EXTEND_PORT, TONGUE_RETRACT_PORT),
   a_TongueMotor(TONGUE_PORT),
@@ -26,11 +23,14 @@ void Tongue::Raise() {
 void Tongue::InitAuto()
 {
 	a_TongueState = kExtending;
-
+	lol();
 }
 
 void Tongue::UpdateAuto()
 {
+	int tongue_back_int = 0;
+	int tongue_front_int = 0;
+
 	SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
 	SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
 
@@ -101,4 +101,8 @@ void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
 
 TongueState Tongue::GetState() {
 	return a_TongueState;
+}
+
+void Tongue::lol() {
+	a_TonguePiston.Set(DoubleSolenoid::kForward);
 }

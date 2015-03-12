@@ -17,6 +17,7 @@ public:
 	void InitAuto();
 	void UpdateAuto();
 	TongueState GetState();
+	void lol();
 
 private:
 	DoubleSolenoid a_TonguePiston;

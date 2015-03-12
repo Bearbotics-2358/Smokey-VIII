@@ -9,7 +9,7 @@ Lifterino::Lifterino()
  a_Grip(GRIPPER_EXTEND_SOLENOID, GRIPPER_RETRACT_SOLENOID),
  a_Encoder(LIFT_ENCODER_PORT_1, LIFT_ENCODER_PORT_2, true, Encoder::k4X),
  a_State(kNoTotes),
- a_AutoState(kNoTotes),
+ a_AutoState(kFindZero),
  a_Timer(),
  a_LifterSwitch(LIFTER_SWITCH_PORT),
  a_LifterC(a_Llifter, a_Rlifter),
@@ -18,12 +18,10 @@ Lifterino::Lifterino()
 	SetEnabled(false);
 	a_Encoder.SetPIDSourceParameter(PIDSource::kDistance);
 	a_Encoder.SetDistancePerPulse(1);
-
 	a_PID.SetOutputRange(-.2, 1.0);
-	a_PID.SetAbsoluteTolerance(1.0);
+	a_PID.SetAbsoluteTolerance(0.5);
 	a_PID.SetInputRange(0, 70);
-
-
+	a_PID.SetPID(P, I, D);
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
@@ -114,13 +112,15 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 
 void Lifterino::AutonUpdate(void) {
 	LifterinoState nextState = a_AutoState;
-	if(a_AutoState == kIdleWithTote)
+	/* if(a_AutoState == kIdleWithTote)
 	{
 		nextState = kRelease;
-	}
+	} */
+
 	if(!a_LifterSwitch.Get()) {
 		a_Encoder.Reset();
 	}
+
 	// State Machine
 	switch(a_AutoState){
 	case kFindZero:
@@ -185,12 +185,20 @@ void Lifterino::AutonUpdate(void) {
 }
 
 void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
+	SmartDashboard::PutNumber("P", P);
+	SmartDashboard::PutNumber("I", I);
+	SmartDashboard::PutNumber("D", D);
+
 	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
 	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
 	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
 	SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
 	SmartDashboard::PutNumber("Lifter State", a_State);
+
+	P = GetSmartDashboardNumber("PQ", P);
+	I = GetSmartDashboardNumber("IQ", I);
+	D = GetSmartDashboardNumber("DQ", D);
 
 	bool GripExtendButton = stick2.GetRawButton(3);
 	bool GripRetractButton = stick2.GetRawButton(2);
@@ -243,5 +251,10 @@ void Lifterino::SetEnabled(bool enable)
 {
 	a_enabled = enable;
 	(enable) ? a_PID.Enable() : a_PID.Disable();
+}
+
+LifterinoState Lifterino::GetAutoState()
+{
+	return a_AutoState;
 }
 

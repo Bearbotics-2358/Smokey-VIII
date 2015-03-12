@@ -25,6 +25,7 @@ public:
 	void Reset(void);
 	void SetEnabled(bool enable);
 	void AutonUpdate(void);
+	LifterinoState GetAutoState();
 
 private:
 	const double TOP_LIFTER_SETPOINT = 65.0;
