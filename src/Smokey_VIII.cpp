@@ -140,12 +140,15 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	case kGrabbing: // Extends tongue and retracts it - grabs bin
 		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 		a_Tongue.UpdateAuto();
-		if(numOfIterations == 2) {
-			nextState = kTurningBot;
-		} else {
-			if(a_Tongue.GetState() == TongueState::kTongueIdle) {
+		// this state is complete when Tongue state machine reaches kTongueIdle
+		if(a_Tongue.GetState() == TongueState::kTongueIdle) {
+			// After grabbing all 3 bins, head toward Auto Zone
+			if(numOfIterations >= 2) {
+				nextState = kTurningBot;
+			} else {
 				nextState = kLifting;
 
+				// prepare to lift next bin
 				a_Lifter.Reset();
 				a_Lifter.SetEnabled(false);
 			}
@@ -207,7 +210,8 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
-		if(a_DriveEncoder.GetDistance() <= -1 * SIX_FEET)
+		// TEMPORARY for testing until we get gyro working
+		if(a_DriveEncoder.GetDistance() >= -1 * SIX_FEET)
 		{
 			//a_Drive.MecanumDrive_Cartesian(1.0, 0.0, 0.0, 0.0);
 			a_Drive.MecanumDrive_Cartesian(-0.5, 0.0, 0.0, 0.0);
