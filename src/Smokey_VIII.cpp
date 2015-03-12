@@ -126,6 +126,7 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.SetEnabled(false);
 	a_Tongue.InitAuto();
 	a_LRC.SetColor(0,36,72,72);
+	a_DriveEncoder.Reset();
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
@@ -144,13 +145,17 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		if(a_Tongue.GetState() == TongueState::kTongueIdle) {
 			// After grabbing all 3 bins, head toward Auto Zone
 			if(numOfIterations >= 2) {
-				nextState = kTurningBot;
+				nextState = kLiftBeforeTurn;
+				a_Lifter.SetState(LifterinoState::kRelease);
 			} else {
 				nextState = kLifting;
 
 				// prepare to lift next bin
-				a_Lifter.Reset();
-				a_Lifter.SetEnabled(false);
+				//a_Lifter.Reset();
+				if(numOfIterations > 0) {
+					a_Lifter.SetState(LifterinoState::kRelease);
+				}
+				//a_Lifter.SetEnabled(false);
 			}
 		}
 		break;
@@ -192,6 +197,14 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 			nextState = kGrabbing;
 			a_Tongue.InitAuto();
 			numOfIterations++;
+		}
+		break;
+
+	case kLiftBeforeTurn:
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+		a_Lifter.AutonUpdate();
+		if(a_Lifter.GetAutoState() == LifterinoState::kLift) {
+			nextState = kTurningBot;
 		}
 		break;
 

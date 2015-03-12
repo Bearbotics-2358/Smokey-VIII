@@ -240,7 +240,6 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 }
 
 void Lifterino::Reset(void) {
-	a_PID.Disable();
 	a_Grip.Set(DoubleSolenoid::kReverse);
 	a_PID.SetSetpoint(0.0);
 	a_State = kFindZero;
@@ -258,3 +257,7 @@ LifterinoState Lifterino::GetAutoState()
 	return a_AutoState;
 }
 
+void Lifterino::SetState(LifterinoState stateToSet)
+{
+	a_AutoState = stateToSet;
+}

@@ -31,6 +31,10 @@ void Tongue::UpdateAuto()
 	int tongue_back_int = 0;
 	int tongue_front_int = 0;
 
+	if(a_TongueState == kTongueIdle) {
+		a_TongueState = kExtending;
+	}
+
 	SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
 	SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
 

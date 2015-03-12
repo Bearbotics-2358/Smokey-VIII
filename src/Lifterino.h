@@ -25,6 +25,7 @@ public:
 	void Reset(void);
 	void SetEnabled(bool enable);
 	void AutonUpdate(void);
+	void SetState(LifterinoState stateToSet);
 	LifterinoState GetAutoState();
 
 private:

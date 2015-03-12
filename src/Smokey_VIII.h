@@ -16,6 +16,7 @@ enum AutoState {
 	kDrivingToAutoZone,
 	kBacking,
 	kIdle,
+	kLiftBeforeTurn,
 	kTurningBot,
 	kLifting,
 	kMoveToNext
