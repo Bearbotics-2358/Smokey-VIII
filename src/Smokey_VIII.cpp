@@ -152,7 +152,7 @@ void Smokey_VIII::AutonomousInit(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
-  ToteDetector::Tote tote;
+  ToteDetector::Tote tote = {};
   double toteError = 0.0;
 	float targetX = 0;
 	double gyroAngle = a_JakeGyro.GetAngle();
@@ -214,7 +214,11 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-    tote = a_Detectorino.FindTote(true);
+	  try {
+	    tote = a_Detectorino.FindTote(true);
+	  } catch (std::exception &ex) {
+      printf("Exception: %s\n", ex.what());
+	  }
     if (tote.present) {
       toteError = (320.0 - tote.x);
       if (fabs(toteError) < 0.1) {
