@@ -1,6 +1,6 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
-#include <Math.h>
+#include <math.h>
 
 int numOfIterations = 0;
 
@@ -130,14 +130,14 @@ void Smokey_VIII::AutonomousInit(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
+  ToteDetector::Tote tote;
+  double toteError = 0.0;
 	float targetX = 0;
-
-	AutoState nextState = a_AutonState;
 
 	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
 
+  AutoState nextState = a_AutonState;
 	switch (a_AutonState) {
-
 	case kGrabbing: // Extends tongue and retracts it - grabs bin
 		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 		a_Tongue.UpdateAuto();
@@ -192,12 +192,25 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		a_Drive.MecanumDrive_Cartesian(0, 0.0, 0.0, 0.0);
-		if(true || a_Detectorino.CheckForTote(true)) {
-			nextState = kGrabbing;
-			a_Tongue.InitAuto();
-			numOfIterations++;
-		}
+    tote = a_Detectorino.FindTote(true);
+    if (tote.present) {
+      toteError = (320.0 - tote.x);
+      if (fabs(toteError) < 0.1) {
+        nextState = kGrabbing;
+        a_Tongue.InitAuto();
+        numOfIterations++;
+      } else {
+        if (toteError > 0.5) {
+          toteError = 0.5;
+        } else if (toteError < -0.5) {
+          toteError = -0.5;
+        }
+        a_Drive.MecanumDrive_Cartesian(toteError, 0.0, 0.0, 0.0);
+      }
+    } else {
+      // Keep driving?
+      a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+    }
 		break;
 
 	case kLiftBeforeTurn:
