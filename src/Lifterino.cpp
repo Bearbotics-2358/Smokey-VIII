@@ -19,7 +19,7 @@ Lifterino::Lifterino()
 	a_Encoder.SetPIDSourceParameter(PIDSource::kDistance);
 	a_Encoder.SetDistancePerPulse(1);
 	a_PID.SetOutputRange(-.2, 1.0);
-	a_PID.SetAbsoluteTolerance(0.5);
+	a_PID.SetAbsoluteTolerance(2.9);
 	a_PID.SetInputRange(0, 70);
 	a_PID.SetPID(P, I, D);
 }

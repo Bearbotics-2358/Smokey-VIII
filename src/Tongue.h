@@ -25,4 +25,5 @@ private:
 	DigitalInput a_TongueFrontSwitch;
 	DigitalInput a_TongueBackSwitch;
 	TongueState a_TongueState;
+	TongueState a_TongueTeleopState;
 };

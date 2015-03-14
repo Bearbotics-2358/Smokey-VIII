@@ -29,7 +29,7 @@ public:
 	LifterinoState GetAutoState();
 
 private:
-	const double TOP_LIFTER_SETPOINT = 65.0;
+	const double TOP_LIFTER_SETPOINT = 68.0;
 	const double BOTTOM_LIFTER_SETPOINT = 3.0;
 
 	Talon a_Rlifter;

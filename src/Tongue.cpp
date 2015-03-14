@@ -7,13 +7,62 @@ Tongue::Tongue()
   a_TongueMotor(TONGUE_PORT),
   a_TongueFrontSwitch(TONGUE_SWITCH_PORT),
   a_TongueBackSwitch(TONGUE_BACK_SWITCH_PORT),
-  a_TongueState(kTongueIdle)
+  a_TongueState(kTongueIdle),
+  a_TongueTeleopState(kTongueIdle)
 {
 	a_TonguePiston.Set(DoubleSolenoid::kForward);
 }
 
 void Tongue::Update(Joystick &stick, Joystick &stick2) {
+	int tongue_back_int = 0;
+	int tongue_front_int = 0;
 
+		if(a_TongueTeleopState == kTongueIdle && stick.GetRawButton(2)) {
+			a_TongueTeleopState = kExtending;
+		}
+
+		SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
+		SmartDashboard::PutBoolean("Tongue Front Switch", a_TongueFrontSwitch.Get());
+
+		tongue_back_int = (int)a_TongueBackSwitch.Get();
+		tongue_front_int = (int)a_TongueFrontSwitch.Get();
+
+		SmartDashboard::PutNumber("Tongue Front int", tongue_front_int);
+		SmartDashboard::PutNumber("Tongue Back int", tongue_back_int);
+
+		TongueState nextState = a_TongueTeleopState;
+		switch (a_TongueTeleopState) {
+		case kExtending:
+
+			SmartDashboard::PutString("Tongue State: ", "Extending");
+
+			a_TongueMotor.Set(-0.5);
+
+			if(tongue_back_int == 0) {
+				nextState = kRetracting;
+			}
+			break;
+
+		case kRetracting:
+
+			SmartDashboard::PutString("Tongue State: ", "Retracting");
+
+			a_TongueMotor.Set(0.5);
+
+			if(tongue_front_int == 0) {
+				nextState = kTongueIdle;
+				// next state may never run, so stop motor here
+				a_TongueMotor.Set(0.0);
+			}
+
+			break;
+
+		case kTongueIdle:
+			SmartDashboard::PutString("Tongue State: ", "Idle");
+			a_TongueMotor.Set(0.0);
+			break;
+		}
+		a_TongueTeleopState = nextState;
 }
 
 void Tongue::Raise() {

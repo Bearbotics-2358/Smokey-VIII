@@ -16,7 +16,7 @@ enum AutoState {
 	kDrivingToAutoZone,
 	kBacking,
 	kIdle,
-	kLiftBeforeTurn,
+	kGrabBeforeTurn,
 	kTurningBot,
 	kLifting,
 	kMoveToNext
@@ -51,7 +51,7 @@ private:
 
 	BuiltInAccelerometer a_Accel;
 
-	//JakeGyro a_JakeGyro;
+	JakeGyro a_JakeGyro;
 
 	LightRingController a_LRC;
 

@@ -20,13 +20,13 @@ JakeGyro::JakeGyro(Port port):
 {
 		uint8_t Buff[1];
 		//m_i2c = new I2C((I2C::Port)port, kAddress);
-		Read(0, 1, Buff);
+		// int ret = Read(0, 1, Buff);
 		// printf("Jake Buff: %2.2X\n", Buff[0] & 0x00ff);
 
 		// Turn on the measurements
 		// Write(kPowerCtlRegister, kPowerCtl_Measure);
 		// Specify the data format to read
-		// SetRange(range);
+		//SetRange(range);
 
 		// HALReport(HALUsageReporting::kResourceType_ADXL345, HALUsageReporting::kJakeGyro, 0);
 		// LiveWindow::GetInstance()->AddSensor("JakeGyro", port, this);
@@ -108,4 +108,16 @@ void JakeGyro::UpdateTable() {
 
 ITable* JakeGyro::GetTable() {
 	return m_table;
+}
+
+int JakeGyro::GetTemp() {
+	int16_t rawTemp = 0;
+	bool ret;
+
+	//if(m_i2c)
+	//{
+		ret = Read(kTempRegister, sizeof(rawTemp), (uint8_t *)&rawTemp);
+		SmartDashboard::PutBoolean("Temp Boolean", ret);
+	//}
+	return rawTemp;
 }
