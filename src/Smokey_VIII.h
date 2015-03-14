@@ -6,14 +6,20 @@
 #include "LightRingController.h"
 #include "Lifterino.h"
 #include "DumbDashboard.h"
+#include "Tongue.h"
+#include "JakeGyro.h"
+#include "I2C.h"
 
 enum AutoState {
 	kGrabbing = 0,
 	kFindingTote,
 	kDrivingToAutoZone,
-	kPlacing,
 	kBacking,
-	kIdle
+	kIdle,
+	kLiftBeforeTurn,
+	kTurningBot,
+	kLifting,
+	kMoveToNext
 
 };
 
@@ -37,22 +43,27 @@ private:
 	CANTalon   a_BRmotor;
 	RobotDrive a_Drive;
 
-	Talon a_Tongue;
+	Tongue a_Tongue;
 
 	Compressor   a_Compressor;
 
-	// ToteDetector a_Detectorino;
+	ToteDetector a_Detectorino;
 
 	BuiltInAccelerometer a_Accel;
 
-	Gyro a_Gyro;
+	//JakeGyro a_JakeGyro;
 
 	LightRingController a_LRC;
+
 	Lifterino a_Lifter;
 
 	PowerDistributionPanel a_PDP;
 
 	DumbDashboard a_DS;
+	Encoder a_DriveEncoder;
+
+	Timer a_AutonTimer;
+	AutoState a_AutonState;
 };
 
 #endif // SMOKEY_VIII_H
