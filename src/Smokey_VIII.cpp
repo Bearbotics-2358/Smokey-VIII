@@ -41,6 +41,7 @@ void Smokey_VIII::RobotInit(void) {
 
 void Smokey_VIII::TeleopInit(void) {
 	a_Lifter.Reset();
+	a_JakeGyro.Reset();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -62,6 +63,7 @@ void Smokey_VIII::TestInit(void) {
 	a_Lifter.SetEnabled(false);
 	a_LRC.SetColor(0, 25, 0, 25);
 	a_Tongue.lol();
+	a_JakeGyro.Reset();
 }
 
 void Smokey_VIII::TestPeriodic(void) {
@@ -72,6 +74,14 @@ void Smokey_VIII::TestPeriodic(void) {
 		a_Lifter.Reset();
 	}
 
+	a_JakeGyro.Update();
+
+	a_JakeGyro.GetReg0();
+	SmartDashboard::PutNumber("Return Temp", a_JakeGyro.GetTemp());
+	SmartDashboard::PutNumber("Return X", a_JakeGyro.GetX());
+	SmartDashboard::PutNumber("Return Y", a_JakeGyro.GetY());
+	SmartDashboard::PutNumber("Return Z", a_JakeGyro.GetZ());
+	SmartDashboard::PutNumber("Angle", a_JakeGyro.GetAngle());
 
 	//a_Tongue.Set(0);
 
@@ -81,13 +91,11 @@ void Smokey_VIII::TestPeriodic(void) {
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
-
-	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
+	double gyroAngle = a_JakeGyro.GetAngle();
+	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
 
 	//a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
 	//a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
-
-	SmartDashboard::PutNumber("Return Temp", a_JakeGyro.GetTemp());
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
@@ -133,10 +141,12 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Tongue.InitAuto();
 	a_LRC.SetColor(0,36,72,72);
 	a_DriveEncoder.Reset();
+	a_JakeGyro.Reset();
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
 	float targetX = 0;
+	double gyroAngle = a_JakeGyro.GetAngle();
 
 	AutoState nextState = a_AutonState;
 
@@ -145,7 +155,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	switch (a_AutonState) {
 
 	case kGrabbing: // Extends tongue and retracts it - grabs bin
-		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX());
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 		a_Tongue.UpdateAuto();
 		// this state is complete when Tongue state machine reaches kTongueIdle
 		if(a_Tongue.GetState() == TongueState::kTongueIdle) {
@@ -167,7 +177,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kLifting: // Lifts a grabbed bin
-		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX());
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 		a_Lifter.AutonUpdate();
 		if(a_Lifter.GetAutoState() == LifterinoState::kLift) {
 			nextState = kMoveToNext;
@@ -177,7 +187,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	case kMoveToNext: // Moves the bot about 3 feet right
 		// Continue running lifter until completed
 		a_Lifter.AutonUpdate();
-		a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, a_JakeGyro.GetX());
+		a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, gyroAngle);
 		switch(numOfIterations) {
 		case 0:
 			targetX = THREE_FEET;
@@ -197,7 +207,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		a_Drive.MecanumDrive_Cartesian(0, 0.0, 0.0, a_JakeGyro.GetX());
+		a_Drive.MecanumDrive_Cartesian(0, 0.0, 0.0, gyroAngle);
 		if(true || a_Detectorino.CheckForTote(true)) {
 			nextState = kGrabbing;
 			a_Tongue.InitAuto();
@@ -206,7 +216,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kGrabBeforeTurn:
-		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX());
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 		a_Lifter.AutonUpdate();
 		if(a_Lifter.GetAutoState() == LifterinoState::kLift) {
 			nextState = kTurningBot;
@@ -214,26 +224,26 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kTurningBot: // Turn the bot
-		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX()); // Will need to remove later
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle); // Will need to remove later
 		a_Tongue.Raise();
-		if(a_JakeGyro.GetX() <= 90){
+		/* if(a_JakeGyro.GetX() <= 90){
 			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, -1.0, a_JakeGyro.GetX());
-		} else {
+		} else { */
 		a_DriveEncoder.Reset();
 		nextState = kDrivingToAutoZone;
-		}
+		// }
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
 		// TEMPORARY for testing until we get gyro working
 		if(a_DriveEncoder.GetDistance() >= -1 * SIX_FEET)
 		{
-			a_Drive.MecanumDrive_Cartesian(.5, 0.0, 0.0, a_JakeGyro.GetX());
+			a_Drive.MecanumDrive_Cartesian(.5, 0.0, 0.0, gyroAngle);
 			//a_Drive.MecanumDrive_Cartesian(-0.5, 0.0, 0.0, 0.0);
 		}
 		else
 		{
-			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX());
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 			nextState = kBacking;
 			a_AutonTimer.Reset();
 			a_AutonTimer.Start();
@@ -244,11 +254,11 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		a_Lifter.Reset();
 		if(a_AutonTimer.Get() <= 3)
 		{
-			a_Drive.MecanumDrive_Cartesian(0.0, 1.0, 0.0, a_JakeGyro.GetX());
+			a_Drive.MecanumDrive_Cartesian(0.0, 1.0, 0.0, gyroAngle);
 		}
 		else
 		{
-			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, a_JakeGyro.GetX());
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 			nextState = kIdle;
 		}
 		break;

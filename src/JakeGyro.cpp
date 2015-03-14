@@ -4,7 +4,7 @@
 #include "LiveWindow/LiveWindow.h"
 #include "Prefs.h"
 
-const uint8_t JakeGyro::kPowerCtlRegister;
+const uint8_t JakeGyro::kPowerMgmRegister;
 const uint8_t JakeGyro::kDataFormatRegister;
 const uint8_t JakeGyro::kDataRegister;
 constexpr double JakeGyro::kGsPerLSB;
@@ -15,10 +15,11 @@ constexpr double JakeGyro::kGsPerLSB;
  * @param port The I2C port the gyro is attached to
  */
 JakeGyro::JakeGyro(Port port):
-		I2C(port, JAKE_GYRO_ADDRESS),
-		m_table()
+		I2C(port, JAKE_GYRO_ADDRESS)
 {
-		uint8_t Buff[1];
+		lastUpdate = 0;
+		angle = 0;
+		Init();
 		//m_i2c = new I2C((I2C::Port)port, kAddress);
 		// int ret = Read(0, 1, Buff);
 		// printf("Jake Buff: %2.2X\n", Buff[0] & 0x00ff);
@@ -38,86 +39,111 @@ JakeGyro::~JakeGyro()
 	//m_i2c = NULL;
 }
 
-void JakeGyro::SetRange(Range range)
+void JakeGyro::Init()
 {
-	Write(kDataFormatRegister, kDataFormat_FullRes | (uint8_t)range);
+	lastUpdate = 0;
+	Write(kDLPFRegister, 0x1B);
+	Write(kSampleRateDivider, 9);
+	Write(kPowerMgmRegister, 1);
+	Write(kIntCfg, 1);
+	uint8_t stat;
+
+	angleBias = 0;
+	for(int i = 0; i < 10; i++) {
+		do {
+			Read(kIntStatus, 1, &stat);
+		} while(!(stat & 1));
+		Update();
+		angleBias += XAxis;
+	}
+	angleBias /= 10;
+	// SmartDashboard::PutNumber("Angle Bias", angleBias);
+	angle = 0;
+}
+
+uint8_t JakeGyro::GetReg0()
+{
+	uint8_t id;
+	Read(0, 1, &id);
+	SmartDashboard::PutNumber("Gyro ID", id);
+
+	return id;
+}
+
+int16_t JakeGyro::GetReg(uint8_t regNum)
+{
+	uint16_t ret;
+	uint8_t buff[2];
+
+	Read(regNum, 2, buff);
+	ret = (buff[0] << 8) | buff[1];
+	return (int16_t)ret;
+}
+
+void JakeGyro::Update()
+{
+	if(lastUpdate == 0){
+		lastUpdate = Timer::GetFPGATimestamp();
+		return;
+	}
+	double time = Timer::GetFPGATimestamp();
+	double timeDelta = (time - lastUpdate);
+
+	temperature = GetReg(kTempRegister);
+	temperature = -13200 - temp;
+	temperature = temperature / 280;
+	temperature += 35;
+
+	XAxis = GetReg(kDataRegister + kAxis_X);
+	XAxis = XAxis / 14.375;
+
+	YAxis = GetReg(kDataRegister + kAxis_Y);
+	YAxis = YAxis / 14.375;
+
+	ZAxis = GetReg(kDataRegister + kAxis_Z);
+	ZAxis = ZAxis / 14.375;
+
+	angle += (XAxis - angleBias) * timeDelta;
+	lastUpdate = time;
+
+	if (angle > 360) {
+		angle -= 360;
+	}
+
+	else if (angle < 0) {
+		angle += 360;
+	}
+
 }
 
 double JakeGyro::GetX()
 {
-	return GetAcceleration(kAxis_X);
+	return XAxis;
 }
 
 double JakeGyro::GetY()
 {
-	return GetAcceleration(kAxis_Y);
+	return YAxis;
 }
 
 double JakeGyro::GetZ()
 {
-	return GetAcceleration(kAxis_Z);
-}
-
-double JakeGyro::GetAcceleration(JakeGyro::Axes axis)
-{
-	int16_t rawAccel = 0;
-	//if(m_i2c)
-	//{
-		Read(kDataRegister + (uint8_t)axis, sizeof(rawAccel), (uint8_t *)&rawAccel);
-	//}
-	return rawAccel * kGsPerLSB;
-}
-
-/**
- * Get the acceleration of all axes in Gs.
- *
- * @return An object containing the acceleration measured on each axis of the ADXL345 in Gs.
- */
-JakeGyro::AllAxes JakeGyro::GetAccelerations()
-{
-	AllAxes data = AllAxes();
-	int16_t rawData[3];
-	//if (m_i2c)
-	//{
-		Read(kDataRegister, sizeof(rawData), (uint8_t*)rawData);
-
-		data.XAxis = rawData[0] * kGsPerLSB;
-		data.YAxis = rawData[1] * kGsPerLSB;
-		data.ZAxis = rawData[2] * kGsPerLSB;
-	//}
-	return data;
+	return ZAxis;
 }
 
 std::string JakeGyro::GetSmartDashboardType() {
 	return "3AxisAccelerometer";
 }
 
-void JakeGyro::InitTable(ITable *subtable) {
-	m_table = subtable;
-	UpdateTable();
-}
-
-void JakeGyro::UpdateTable() {
-	if (m_table != NULL) {
-		m_table->PutNumber("X", GetX());
-		m_table->PutNumber("Y", GetY());
-		m_table->PutNumber("Z", GetZ());
-	}
-
-}
-
-ITable* JakeGyro::GetTable() {
-	return m_table;
-}
-
 int JakeGyro::GetTemp() {
-	int16_t rawTemp = 0;
-	bool ret;
+	return temperature;
+}
 
-	//if(m_i2c)
-	//{
-		ret = Read(kTempRegister, sizeof(rawTemp), (uint8_t *)&rawTemp);
-		SmartDashboard::PutBoolean("Temp Boolean", ret);
-	//}
-	return rawTemp;
+double JakeGyro::GetAngle()
+{
+	return angle;
+}
+
+void JakeGyro::Reset() {
+	angle = 0;
 }
