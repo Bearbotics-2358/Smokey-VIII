@@ -8,6 +8,7 @@ public:
 	~DumbDashboard(void);
 
 	void SendDouble(std::string key, double value);
+	void SendBool(std::string key, bool value);
 
 private:
 	void SendChannels(void);

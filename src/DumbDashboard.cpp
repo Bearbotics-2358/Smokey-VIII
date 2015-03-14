@@ -8,6 +8,8 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <Timer.h>
+
 using namespace rapidjson;
 
 DumbDashboard::DumbDashboard(void) {
@@ -30,9 +32,27 @@ void DumbDashboard::SendDouble(std::string key, double value) {
 
 	writer.StartObject();
 	writer.String("timestamp");
-	writer.Uint(time(NULL));
+	writer.Double(Timer::GetFPGATimestamp());
 	writer.String("data");
 	writer.Double(value);
+	writer.EndObject();
+
+	s_sendmore(_pub, key.c_str());
+	s_send(_pub, s.GetString());
+}
+
+void DumbDashboard::SendBool(std::string key, bool value) {
+	_channels.emplace(key);
+	SendChannels();
+
+	StringBuffer s;
+	Writer<StringBuffer> writer(s);
+
+	writer.StartObject();
+	writer.String("timestamp");
+	writer.Double(Timer::GetFPGATimestamp());
+	writer.String("data");
+	writer.Bool(value);
 	writer.EndObject();
 
 	s_sendmore(_pub, key.c_str());
