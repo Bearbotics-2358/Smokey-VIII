@@ -1,5 +1,5 @@
 #include <LightRingController.h>
-#include "Prefs.h"
+#include <Prefs.h>
 
 LightRingController::LightRingController()
 	:a_I2C(I2C::kOnboard, LIGHT_RING_CONTROLLER_ADDRESS){

@@ -1,6 +1,6 @@
 #include "Smokey_VIII.h"
-#include "Prefs.h"
 #include <Math.h>
+#include <Prefs.h>
 
 int numOfIterations = 0;
 
@@ -27,8 +27,9 @@ Smokey_VIII::Smokey_VIII(void)
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
-	//a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
-	//a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
+	// Comment next 2 out for practice bot
+	a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
+	a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
 	a_DriveEncoder.SetDistancePerPulse(((4.0 * M_PI) / 90.0) * (162.0 / 150.0));
 	a_DriveEncoder.Reset();
 }
@@ -42,6 +43,7 @@ void Smokey_VIII::RobotInit(void) {
 void Smokey_VIII::TeleopInit(void) {
 	a_Lifter.Reset();
 	a_JakeGyro.Reset();
+	a_Tongue.lol();
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -51,7 +53,12 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
+	if(a_Joystick.GetRawButton(7)) {
+		a_JakeGyro.Reset();
+	}
 
+	a_JakeGyro.Update();
+	double gyroAngle = a_JakeGyro.GetAngle();
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 	a_Tongue.Update(a_Joystick, a_Joystick2);
@@ -226,19 +233,19 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	case kTurningBot: // Turn the bot
 		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle); // Will need to remove later
 		a_Tongue.Raise();
-		/* if(a_JakeGyro.GetX() <= 90){
-			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, -1.0, a_JakeGyro.GetX());
-		} else { */
+		if(a_JakeGyro.GetX() <= 90){
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, -.5, 0);
+		} else {
 		a_DriveEncoder.Reset();
 		nextState = kDrivingToAutoZone;
-		// }
+		}
 		break;
 
 	case kDrivingToAutoZone: // Move 6 feet into auto zone
 		// TEMPORARY for testing until we get gyro working
 		if(a_DriveEncoder.GetDistance() >= -1 * SIX_FEET)
 		{
-			a_Drive.MecanumDrive_Cartesian(.5, 0.0, 0.0, gyroAngle);
+			a_Drive.MecanumDrive_Cartesian(0.0, 0.5, 0.0, gyroAngle);
 			//a_Drive.MecanumDrive_Cartesian(-0.5, 0.0, 0.0, 0.0);
 		}
 		else
@@ -254,7 +261,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		a_Lifter.Reset();
 		if(a_AutonTimer.Get() <= 3)
 		{
-			a_Drive.MecanumDrive_Cartesian(0.0, 1.0, 0.0, gyroAngle);
+			a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, gyroAngle);
 		}
 		else
 		{
@@ -264,6 +271,7 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kIdle:
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 		break;
 	}
 	a_AutonState = nextState;

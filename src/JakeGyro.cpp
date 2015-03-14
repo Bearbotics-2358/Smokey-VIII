@@ -1,8 +1,8 @@
+#include <Prefs.h>
 #include "JakeGyro.h"
 #include "I2C.h"
 #include "HAL/HAL.hpp"
 #include "LiveWindow/LiveWindow.h"
-#include "Prefs.h"
 
 const uint8_t JakeGyro::kPowerMgmRegister;
 const uint8_t JakeGyro::kDataFormatRegister;
