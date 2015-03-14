@@ -220,8 +220,8 @@ void Smokey_VIII::AutonomousPeriodic(void) {
       printf("Exception: %s\n", ex.what());
 	  }
     if (tote.present) {
-      toteError = (320.0 - tote.x);
-      if (fabs(toteError) < 0.1) {
+      toteError = (TOTE_TARGET_X - tote.x);
+      if (fabs(toteError) < TOTE_TARGET_TOLERANCE) {
         nextState = kGrabbing;
         a_Tongue.InitAuto();
         numOfIterations++;
