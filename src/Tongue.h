@@ -18,6 +18,7 @@ public:
 	void UpdateAuto();
 	TongueState GetState();
 	void lol();
+	void SetEnabled(bool);
 
 private:
 	DoubleSolenoid a_TonguePiston;
@@ -25,4 +26,6 @@ private:
 	DigitalInput a_TongueFrontSwitch;
 	DigitalInput a_TongueBackSwitch;
 	TongueState a_TongueState;
+	TongueState a_TongueTeleopState;
+	bool enabled;
 };

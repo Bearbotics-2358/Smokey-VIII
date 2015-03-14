@@ -1,8 +1,7 @@
 #include "ToteDetector.h"
-#include "Prefs.h"
-
 #include <networktables2/util/System.h>
 #include <nivision.h>
+#include <Prefs.h>
 #include <stdexcept>
 #include <sstream>
 #include <time.h>

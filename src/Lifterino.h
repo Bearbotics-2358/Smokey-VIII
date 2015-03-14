@@ -4,6 +4,7 @@
 #include <WPILib.h>
 #include "KiwiController.h"
 #include "PIDController.h"
+#include <Prefs.h>
 
 enum LifterinoState {
 	kFindZero = 0,
@@ -27,9 +28,10 @@ public:
 	void AutonUpdate(void);
 	void SetState(LifterinoState stateToSet);
 	LifterinoState GetAutoState();
+	void SwitchToManual(bool);
 
 private:
-	const double TOP_LIFTER_SETPOINT = 65.0;
+	const double TOP_LIFTER_SETPOINT = PREFS_LIFTER_SETPOINT;
 	const double BOTTOM_LIFTER_SETPOINT = 3.0;
 
 	Talon a_Rlifter;
@@ -53,6 +55,7 @@ private:
 	float I = 0.0;
 	float D = 0.0;
 	bool a_enabled;
+	bool enabled;
 };
 
 #endif // LIFTERINO_H
