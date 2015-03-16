@@ -28,8 +28,10 @@ Lifterino::Lifterino()
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	if(stick.GetRawButton(6)) {
 		SwitchToManual(false);
+		a_PID.Disable();
 	} else if(stick.GetRawButton(5)) {
 		SwitchToManual(true);
+		a_PID.Enable();
 	}
 
 	if(enabled) {
@@ -290,7 +292,7 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		a_PID.SetPID(P, I, D);
 	}
 
-	if(!a_enabled) {
+	if(!enabled) {
 		a_LifterC.Set(-1 * stick2.GetY());
 	}
 

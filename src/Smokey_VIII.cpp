@@ -36,13 +36,17 @@ Smokey_VIII::Smokey_VIII(void)
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-	a_Drive.SetExpiration(0.5);
+	a_Drive.SetExpiration(10);
+	a_JakeGyro.Init();
 }
 
 
 void Smokey_VIII::TeleopInit(void) {
 	a_Lifter.Reset();
+
 	a_JakeGyro.Reset();
+	a_JakeGyro.Init();
+
 	a_Tongue.lol();
 }
 
@@ -56,10 +60,16 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	if(a_Joystick.GetRawButton(7)) {
 		a_JakeGyro.Reset();
 	}
-
 	a_JakeGyro.Update();
+
 	double gyroAngle = a_JakeGyro.GetAngle();
-	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, 0.0);
+	gyroAngle = 0;
+	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
+
+	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
+	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
+
+
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 	a_Tongue.Update(a_Joystick, a_Joystick2);
 }
@@ -71,6 +81,7 @@ void Smokey_VIII::TestInit(void) {
 	a_LRC.SetColor(0, 25, 0, 25);
 	a_Tongue.lol();
 	a_JakeGyro.Reset();
+	a_JakeGyro.Init();
 }
 
 void Smokey_VIII::TestPeriodic(void) {
@@ -80,7 +91,9 @@ void Smokey_VIII::TestPeriodic(void) {
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
-
+	if(a_Joystick.GetRawButton(7)) {
+		a_JakeGyro.Reset();
+	}
 	a_JakeGyro.Update();
 
 	a_JakeGyro.GetReg0();
@@ -100,6 +113,8 @@ void Smokey_VIII::TestPeriodic(void) {
 	}
 	double gyroAngle = a_JakeGyro.GetAngle();
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
+
+	SmartDashboard::PutNumber("Angle", gyroAngle);
 
 	//a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
 	//a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
