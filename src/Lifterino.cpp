@@ -43,7 +43,6 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 		SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
 		SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
 		SmartDashboard::PutNumber("PID Error", a_PID.GetError());
-		SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
 		SmartDashboard::PutNumber("Lifter State", a_State);
 
 		if(!a_LifterSwitch.Get()) {
@@ -98,6 +97,13 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 
 		case kIdleWithTote:
 			if(liftButton){
+				nextState = kMoveDown;
+			}
+			break;
+
+		case kMoveDown:
+			a_PID.SetSetpoint(MOVE_DOWN_SETPOINT);
+			if(a_PID.OnTarget()) {
 				nextState = kRelease;
 			}
 			break;
@@ -118,21 +124,14 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 		}
 
 		a_State = nextState;
-	} else {
-		SmartDashboard::PutNumber("P", P);
-		SmartDashboard::PutNumber("I", I);
-		SmartDashboard::PutNumber("D", D);
 
+	} else {
 		SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
 		SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
 		SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
 		SmartDashboard::PutNumber("PID Error", a_PID.GetError());
-		SmartDashboard::PutNumber("KiwiSpeed", a_LifterC.Get());
 		SmartDashboard::PutNumber("Lifter State", a_State);
 
-		P = GetSmartDashboardNumber("PQ", P);
-		I = GetSmartDashboardNumber("IQ", I);
-		D = GetSmartDashboardNumber("DQ", D);
 
 		bool GripExtendButton = stick2.GetRawButton(3);
 		bool GripRetractButton = stick2.GetRawButton(2);
@@ -158,9 +157,6 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 			a_PID.SetSetpoint(40);
 		}
 
-		if(stick2.GetRawButton(6)){
-			a_PID.SetPID(P, I, D);
-		}
 
 		if(!a_enabled) {
 			a_LifterC.Set(-1 * stick2.GetY());
@@ -243,6 +239,13 @@ void Lifterino::AutonUpdate(void) {
 		}
 		break;
 
+	case kMoveDown:
+		a_PID.SetSetpoint(MOVE_DOWN_SETPOINT);
+		if(a_PID.OnTarget()) {
+			nextState = kRelease;
+		}
+		break;
+
 	}
 
 	a_AutoState = nextState;
@@ -292,7 +295,11 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		a_PID.SetPID(P, I, D);
 	}
 
-	if(!enabled) {
+	if(stick2.GetRawButton(8)) {
+		SetEnabled(false);
+	}
+
+	if(!a_enabled) {
 		a_LifterC.Set(-1 * stick2.GetY());
 	}
 

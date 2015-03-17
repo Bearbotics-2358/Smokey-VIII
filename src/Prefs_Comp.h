@@ -42,6 +42,6 @@
 #define THREE_FEET 81
 #define SIX_FEET 162
 
-#define PREFS_LIFTER_SETPOINT 64.0
+#define PREFS_LIFTER_SETPOINT 63.0
 
 #endif

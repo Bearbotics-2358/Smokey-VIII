@@ -21,6 +21,8 @@ public:
 	void SetEnabled(bool);
 
 private:
+	const double FORWARD_SPEED = -1;
+	const double BACKWARD_SPEED = 0.5;
 	DoubleSolenoid a_TonguePiston;
 	Talon a_TongueMotor;
 	DigitalInput a_TongueFrontSwitch;

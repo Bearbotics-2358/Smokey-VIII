@@ -96,7 +96,6 @@ void Smokey_VIII::TestPeriodic(void) {
 	}
 	a_JakeGyro.Update();
 
-	a_JakeGyro.GetReg0();
 	SmartDashboard::PutNumber("Return Temp", a_JakeGyro.GetTemp());
 	SmartDashboard::PutNumber("Return X", a_JakeGyro.GetX());
 	SmartDashboard::PutNumber("Return Y", a_JakeGyro.GetY());
