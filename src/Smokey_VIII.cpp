@@ -1,6 +1,6 @@
 #include "Smokey_VIII.h"
-#include <Math.h>
-#include <Prefs.h>
+#include "Prefs.h"
+#include <math.h>
 
 int numOfIterations = 0;
 
@@ -166,15 +166,15 @@ void Smokey_VIII::AutonomousInit(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodic(void) {
+  ToteDetector::Tote tote = {};
+  double toteError = 0.0;
 	float targetX = 0;
 	double gyroAngle = a_JakeGyro.GetAngle();
 
-	AutoState nextState = a_AutonState;
-
 	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
 
+  AutoState nextState = a_AutonState;
 	switch (a_AutonState) {
-
 	case kGrabbing: // Extends tongue and retracts it - grabs bin
 		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
 		a_Tongue.UpdateAuto();
@@ -228,12 +228,29 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		break;
 
 	case kFindingTote: // Vision code implementation needed here
-		a_Drive.MecanumDrive_Cartesian(0, 0.0, 0.0, gyroAngle);
-		if(true || a_Detectorino.CheckForTote(true)) {
-			nextState = kGrabbing;
-			a_Tongue.InitAuto();
-			numOfIterations++;
-		}
+	  try {
+	    tote = a_Detectorino.FindTote(true);
+	  } catch (std::exception &ex) {
+      printf("Exception: %s\n", ex.what());
+	  }
+    if (tote.present) {
+      toteError = (TOTE_TARGET_X - tote.x);
+      if (fabs(toteError) < TOTE_TARGET_TOLERANCE) {
+        nextState = kGrabbing;
+        a_Tongue.InitAuto();
+        numOfIterations++;
+      } else {
+        if (toteError > 0.5) {
+          toteError = 0.5;
+        } else if (toteError < -0.5) {
+          toteError = -0.5;
+        }
+        a_Drive.MecanumDrive_Cartesian(toteError, 0.0, 0.0, gyroAngle);
+      }
+    } else {
+      // Keep driving?
+      a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
+    }
 		break;
 
 	case kGrabBeforeTurn:

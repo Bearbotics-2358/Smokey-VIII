@@ -6,19 +6,31 @@
 
 class ToteDetector {
 public:
-	ToteDetector(std::string ip);
+  typedef struct {
+    bool present;
+    double x;
+    double y;
+  } Tote;
 
-	void SnapImage();
-	bool CheckForTote(bool snapImage);
+  ToteDetector(std::string ip);
+  ~ToteDetector();
+
+  void SetDebugMode(bool debugMode);
+  bool GetDebugMode();
+
+  void SnapImage();
+  Tote FindTote(bool snapImage);
 
 private:
-	void CheckIMAQError(int rval, std::string desc);
+  void CheckIMAQError(int rval, std::string desc);
 
-	AxisCamera a_Camera;
-	LightRingController a_Flash;
+  bool a_DebugMode;
 
-	HSLImage a_NoFlashImage;
-	HSLImage a_FlashImage;
+  AxisCamera a_Camera;
+  LightRingController a_Flash;
+
+  HSLImage a_NoFlashImage;
+  HSLImage a_FlashImage;
 };
 
 #endif // TOTE_DETECTOR_H
