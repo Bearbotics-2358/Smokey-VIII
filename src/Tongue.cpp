@@ -8,7 +8,8 @@ Tongue::Tongue()
   a_TongueFrontSwitch(TONGUE_SWITCH_PORT),
   a_TongueBackSwitch(TONGUE_BACK_SWITCH_PORT),
   a_TongueState(kTongueIdle),
-  a_TongueTeleopState(kTongueIdle)
+  a_TongueTeleopState(kTongueIdle),
+	a_timer_running(false)
 {
 	a_TonguePiston.Set(DoubleSolenoid::kForward);
 	enabled = true;
@@ -41,6 +42,7 @@ void Tongue::InitAuto()
 {
 	a_TongueState = kExtending;
 	lol();
+	a_timer_running = false;
 }
 
 void Tongue::UpdateAuto()
@@ -69,7 +71,18 @@ void Tongue::UpdateAuto()
 
 		a_TongueMotor.Set(-0.5);
 
-		if(tongue_back_int == 0) {
+		// tongue back switch had to be disconnected due to electrical noise
+		// problems - replace it with a timer
+		if(!a_timer_running) {
+			a_timer_running = true;
+			a_Timer.Reset();
+			a_Timer.Start();
+		}
+
+		// if(tongue_back_int == 0) {
+		if(a_Timer.Get() >= 0.5){
+			a_Timer.stop();
+			a_timer_running = false;
 			nextState = kRetracting;
 		}
 		break;

@@ -210,7 +210,7 @@ void Lifterino::AutonUpdate(void) {
 		break;
 
 	case kGripDelay:
-		if(a_Timer.Get() >= 1 ){
+		if(a_Timer.Get() >= 0.25 ){
 			nextState = kLift;
 		}
 		break;
@@ -234,7 +234,7 @@ void Lifterino::AutonUpdate(void) {
 		break;
 
 	case kReleaseDelay:
-		if(a_Timer.Get() >= 1){
+		if(a_Timer.Get() >= 0.25){
 			nextState = kLower;
 		}
 		break;

@@ -49,7 +49,7 @@ void JakeGyro::Init()
 	uint8_t stat;
 
 	angleBias = 0;
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 5; i++) {
 		do {
 			Read(kIntStatus, 1, &stat);
 		} while(!(stat & 1));

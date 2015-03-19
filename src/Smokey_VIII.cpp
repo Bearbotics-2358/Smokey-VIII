@@ -208,7 +208,6 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	case kMoveToNext: // Moves the bot about 3 feet right
 		// Continue running lifter until completed
 		a_Lifter.AutonUpdate();
-		a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, gyroAngle);
 		switch(numOfIterations) {
 		case 0:
 			targetX = THREE_FEET;
@@ -222,7 +221,12 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 			targetX = SIX_FEET;
 			break;
 		}
-		if(a_DriveEncoder.GetDistance() >= targetX) {
+		if(a_DriveEncoder.GetDistance() <= targetX - 1.0) {
+			// far away, drive fast
+			a_Drive.MecanumDrive_Cartesian(0.7, 0.0, 0.0, gyroAngle);
+		} else { 
+			// closing in, slow down, let the camera take over
+			a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, gyroAngle);
 			nextState = kFindingTote;
 		}
 		break;
@@ -234,8 +238,10 @@ void Smokey_VIII::AutonomousPeriodic(void) {
       printf("Exception: %s\n", ex.what());
 	  }
     if (tote.present) {
-      toteError = (TOTE_TARGET_X - tote.x);
+      toteError = (targetX - tote.x);
       if (fabs(toteError) < TOTE_TARGET_TOLERANCE) {
+				// stop driving and go get it
+				a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
         nextState = kGrabbing;
         a_Tongue.InitAuto();
         numOfIterations++;
@@ -248,8 +254,18 @@ void Smokey_VIII::AutonomousPeriodic(void) {
         a_Drive.MecanumDrive_Cartesian(toteError, 0.0, 0.0, gyroAngle);
       }
     } else {
-      // Keep driving?
-      a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
+      // Haven't found the tote yet
+			if(a_DriveEncoder.GetDistance() < targetX + TOTE_TARGET_TOLERANCE) {
+				// keep driving
+				a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, gyroAngle);
+			} else {
+				// reached target distance+ w/o seeing tote
+				// assume it's here and go get it
+				a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, gyroAngle);
+        nextState = kGrabbing;
+        a_Tongue.InitAuto();
+        numOfIterations++;
+			}
     }
 		break;
 

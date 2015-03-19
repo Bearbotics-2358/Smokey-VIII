@@ -30,4 +30,7 @@ private:
 	TongueState a_TongueState;
 	TongueState a_TongueTeleopState;
 	bool enabled;
+
+	Timer a_Timer;
+	bool a_timer_running;
 };
