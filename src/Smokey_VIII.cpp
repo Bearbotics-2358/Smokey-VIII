@@ -27,12 +27,12 @@ Smokey_VIII::Smokey_VIII(void)
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
-	/*
+
 	a_FLmotor.SetSafetyEnabled(false);
 	a_FRmotor.SetSafetyEnabled(false);
 	a_BLmotor.SetSafetyEnabled(false);
 	a_BRmotor.SetSafetyEnabled(false);
-	*/
+
 	// Comment next 2 out for practice bot
 	a_Drive.SetInvertedMotor(a_Drive.kRearLeftMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontLeftMotor, true);
@@ -43,15 +43,17 @@ Smokey_VIII::Smokey_VIII(void)
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
 	a_Drive.SetExpiration(10);
-	a_JakeGyro.Init();
+	// a_JakeGyro.Init();
 }
 
 
 void Smokey_VIII::TeleopInit(void) {
 	a_Lifter.Reset();
 
-	a_JakeGyro.Reset();
-	a_JakeGyro.Init();
+	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+
+	// a_JakeGyro.Reset();
+	// a_JakeGyro.Init();
 
 	a_Tongue.lol();
 }
@@ -66,7 +68,7 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	if(a_Joystick.GetRawButton(7)) {
 		a_JakeGyro.Reset();
 	}
-	a_JakeGyro.Update();
+	//a_JakeGyro.Update();
 
 	double gyroAngle = a_JakeGyro.GetAngle();
 	gyroAngle = 0;
@@ -180,7 +182,9 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.SetEnabled(false);
 	a_LRC.SetColor(0,36,72,72);
 	a_DriveEncoder.Reset();
-	a_JakeGyro.Reset();
+	// a_JakeGyro.Reset();
+
+	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 
 	if(a_Joystick2.GetZ() <= -0.8) {
 		a_Tongue.InitAuto();
@@ -190,14 +194,14 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 	if(a_Joystick2.GetZ() <= -0.8) { // Full Autonomous
 		AutonomousPeriodicFull();
 	} else if(a_Joystick2.GetZ() >= 0.8) { // No Autonomous
-
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 	} else { // Short Autonomous
 		AutonomousPeriodicSimple();
 	}
 }
 
 void Smokey_VIII::AutonomousPeriodicSimple(void) {
-
+	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 }
 
 void Smokey_VIII::AutonomousPeriodicFull(void) {
