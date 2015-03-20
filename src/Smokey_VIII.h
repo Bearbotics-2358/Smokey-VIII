@@ -32,7 +32,9 @@ public:
 	void TestInit(void);
 	void TestPeriodic(void);
 	void AutonomousInit(void);
+	void AutonomousPeriodicFull(void);
 	void AutonomousPeriodic(void);
+	void AutonomousPeriodicSimple(void);
 
 private:
 	Joystick a_Joystick;

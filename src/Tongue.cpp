@@ -13,6 +13,7 @@ Tongue::Tongue()
 {
 	a_TonguePiston.Set(DoubleSolenoid::kForward);
 	enabled = true;
+	a_TongueMotor.SetSafetyEnabled(false);
 }
 
 void Tongue::Update(Joystick &stick, Joystick &stick2) {
@@ -35,7 +36,7 @@ void Tongue::Update(Joystick &stick, Joystick &stick2) {
 }
 
 void Tongue::Raise() {
-	a_TonguePiston.Set(DoubleSolenoid::kForward);
+	a_TonguePiston.Set(DoubleSolenoid::kReverse);
 }
 
 void Tongue::InitAuto()
@@ -69,7 +70,7 @@ void Tongue::UpdateAuto()
 
 		SmartDashboard::PutString("Tongue State: ", "Extending");
 
-		a_TongueMotor.Set(-0.5);
+		a_TongueMotor.Set(-0.75);
 
 		// tongue back switch had to be disconnected due to electrical noise
 		// problems - replace it with a timer
@@ -80,8 +81,8 @@ void Tongue::UpdateAuto()
 		}
 
 		// if(tongue_back_int == 0) {
-		if(a_Timer.Get() >= 0.5){
-			a_Timer.stop();
+		if(a_Timer.Get() >= 1.0){
+			a_Timer.Stop();
 			a_timer_running = false;
 			nextState = kRetracting;
 		}

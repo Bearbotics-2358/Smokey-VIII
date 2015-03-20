@@ -16,7 +16,8 @@ enum LifterinoState {
 	kIdleWithTote,
 	kLower,
 	kReleaseDelay,
-	kMoveDown
+	kMoveDown,
+	kPlacing
 };
 
 class Lifterino {

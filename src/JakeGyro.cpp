@@ -49,7 +49,7 @@ void JakeGyro::Init()
 	uint8_t stat;
 
 	angleBias = 0;
-	for(int i = 0; i < 5; i++) {
+	for(int i = 0; i < 10; i++) {
 		do {
 			Read(kIntStatus, 1, &stat);
 		} while(!(stat & 1));
@@ -106,12 +106,12 @@ void JakeGyro::Update()
 	angle += (XAxis - angleBias) * timeDelta;
 	lastUpdate = time;
 
-	if (angle > 360) {
-		angle -= 360;
+	if (angle > 180) {
+		angle -= 180;
 	}
 
-	else if (angle < 0) {
-		angle += 360;
+	else if (angle < -180) {
+		angle += 180;
 	}
 
 }
