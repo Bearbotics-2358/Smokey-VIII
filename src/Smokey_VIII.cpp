@@ -19,7 +19,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_JakeGyro(I2C::kMXP),
   a_LRC(),
   a_Lifter(),
-  a_PDP(),
+  // a_PDP(),
   a_DS(),
   a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X),
   a_AutonTimer(),
@@ -42,7 +42,7 @@ Smokey_VIII::Smokey_VIII(void)
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-	a_Drive.SetExpiration(10);
+	// a_Drive.SetExpiration(10);
 	// a_JakeGyro.Init();
 }
 
@@ -56,6 +56,7 @@ void Smokey_VIII::TeleopInit(void) {
 	// a_JakeGyro.Init();
 
 	a_Tongue.lol();
+	a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -201,7 +202,11 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodicSimple(void) {
-	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+	if(a_DriveEncoder.GetDistance() <= 50) {
+		a_Drive.MecanumDrive_Cartesian(0.5, 0.0, 0.0, 0.0);
+	} else {
+		a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+	}
 }
 
 void Smokey_VIII::AutonomousPeriodicFull(void) {

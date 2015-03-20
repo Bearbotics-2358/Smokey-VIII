@@ -103,7 +103,7 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 			if(liftButton){
 				nextState = kMoveDown;
 			}else if(stick.GetRawButton(10)){
-
+				nextState = kPlacing;
 			}
 			break;
 
@@ -128,7 +128,7 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 			break;
 
 		case kPlacing:
-			a_PID.SetSetpoint(0.0);
+			a_PID.SetSetpoint(BOTTOM_LIFTER_SETPOINT);
 			if(a_PID.OnTarget()) {
 				a_Grip.Set(DoubleSolenoid::kReverse);
 				nextState = kNoTotes;

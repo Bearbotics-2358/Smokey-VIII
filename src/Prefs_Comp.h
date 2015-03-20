@@ -45,7 +45,7 @@
 // #define AUTO_ZONE_DIST 84
 #define AUTO_ZONE_DIST 24
 
-// #define PREFS_LIFTER_SETPOINT 63.0
-#define PREFS_LIFTER_SETPOINT 55.5
+#define PREFS_LIFTER_SETPOINT 63.0
+
 
 #endif

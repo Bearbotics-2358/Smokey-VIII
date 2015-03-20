@@ -34,7 +34,7 @@ public:
 
 private:
 	const double TOP_LIFTER_SETPOINT = PREFS_LIFTER_SETPOINT;
-	const double BOTTOM_LIFTER_SETPOINT = 0.0;
+	const double BOTTOM_LIFTER_SETPOINT = 2.0;
 	const double MOVE_DOWN_SETPOINT = 40.0;
 
 	Talon a_Rlifter;
