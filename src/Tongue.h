@@ -19,6 +19,7 @@ public:
 	TongueState GetState();
 	void lol();
 	void SetEnabled(bool);
+	void MotorSafeFeed(void);
 
 private:
 	const double FORWARD_SPEED = -1;

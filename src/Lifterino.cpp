@@ -36,7 +36,8 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 		a_PID.Enable();
 	}
 
-
+	// must make sure you set motors every periodic cycle
+	MotorSafeFeed();
 
 	if(enabled) {
 		bool liftButton = stick.GetRawButton(1);
@@ -196,6 +197,9 @@ void Lifterino::AutonUpdate(void) {
 		nextState = kRelease;
 	} */
 
+	// must make sure you set motors every periodic cycle
+	MotorSafeFeed();
+
 	if(!a_LifterSwitch.Get()) {
 		a_Encoder.Reset();
 	}
@@ -275,6 +279,9 @@ void Lifterino::AutonUpdate(void) {
 }
 
 void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
+	// must make sure you set motors every periodic cycle
+	MotorSafeFeed();
+
 	SmartDashboard::PutNumber("P", P);
 	SmartDashboard::PutNumber("I", I);
 	SmartDashboard::PutNumber("D", D);
@@ -332,6 +339,18 @@ void Lifterino::TestUpdate(Joystick &stick, Joystick &stick2) {
 		a_Grip.Set(DoubleSolenoid::kForward);
 	} else if(GripRetractButton) {
 		a_Grip.Set(DoubleSolenoid::kReverse);
+	}
+}
+
+void Lifterino::MotorSafeFeed(void)
+{
+	// must make sure you set motors every periodic cycle
+	if(a_enabled) {
+		// if a_enabled, PID is running and takes care of it
+	} else {
+		// PID not running
+		double val = a_LifterC.Get();
+		a_LifterC.Set(val);
 	}
 }
 

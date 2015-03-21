@@ -78,7 +78,6 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 
-
 	a_Lifter.Update(a_Joystick, a_Joystick2);
 	a_Tongue.Update(a_Joystick, a_Joystick2);
 }
@@ -192,6 +191,10 @@ void Smokey_VIII::AutonomousInit(void) {
 	}
 }
 void Smokey_VIII::AutonomousPeriodic(void) {
+	// must make sure you set motors every periodic cycle
+	a_Tongue.MotorSafeFeed();
+	a_Lifter.MotorSafeFeed();
+
 	if(a_Joystick2.GetZ() <= -0.8) { // Full Autonomous
 		AutonomousPeriodicFull();
 	} else if(a_Joystick2.GetZ() >= 0.8) { // No Autonomous
@@ -210,6 +213,8 @@ void Smokey_VIII::AutonomousPeriodicSimple(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodicFull(void) {
+
+	// NOTE: still need to confirm that this updates ALL motors
 
   ToteDetector::Tote tote = {};
   double toteError = 0.0;

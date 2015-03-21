@@ -28,6 +28,7 @@ public:
 	void Reset(void);
 	void SetEnabled(bool enable);
 	void AutonUpdate(void);
+	void MotorSafeFeed(void);
 	void SetState(LifterinoState stateToSet);
 	LifterinoState GetAutoState();
 	void SwitchToManual(bool);

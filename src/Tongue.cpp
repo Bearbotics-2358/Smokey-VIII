@@ -133,6 +133,13 @@ void Tongue::TestUpdate(Joystick &stick, Joystick &stick2) {
 	SmartDashboard::PutBoolean("Tongue Back Switch", a_TongueBackSwitch.Get());
 }
 
+void Tongue::MotorSafeFeed(void)
+{
+	// must make sure you set motor every periodic cycle
+	double val = a_TongueMotor.Get();
+	a_TongueMotor.Set(val);
+}
+
 TongueState Tongue::GetState() {
 	return a_TongueState;
 }
