@@ -28,6 +28,9 @@ Lifterino::Lifterino()
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
+
+	a_Rlifter.SetSafetyEnabled(false);
+	a_Llifter.SetSafetyEnabled(false);
 	if(stick2.GetRawButton(6)) {
 		SwitchToManual(false);
 		a_PID.Disable();
@@ -191,6 +194,9 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 }
 
 void Lifterino::AutonUpdate(void) {
+
+	a_Rlifter.SetSafetyEnabled(false);
+	a_Llifter.SetSafetyEnabled(false);
 	LifterinoState nextState = a_AutoState;
 	/* if(a_AutoState == kIdleWithTote)
 	{

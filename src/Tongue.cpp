@@ -17,6 +17,8 @@ Tongue::Tongue()
 }
 
 void Tongue::Update(Joystick &stick, Joystick &stick2) {
+
+	a_TongueMotor.SetSafetyEnabled(false);
 	if(stick.GetRawButton(11) && a_TonguePiston.Get() == DoubleSolenoid::kForward) {
 		a_TongueMotor.Set(FORWARD_SPEED);
 	}else if(stick.GetRawButton(12)) {
@@ -48,6 +50,8 @@ void Tongue::InitAuto()
 
 void Tongue::UpdateAuto()
 {
+
+	a_TongueMotor.SetSafetyEnabled(false);
 	int tongue_back_int = 0;
 	int tongue_front_int = 0;
 

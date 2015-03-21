@@ -42,24 +42,41 @@ Smokey_VIII::Smokey_VIII(void)
 
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
-	// a_Drive.SetExpiration(10);
+	a_Drive.SetExpiration(10);
 	// a_JakeGyro.Init();
+	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+	a_Tongue.MotorSafeFeed();
+	a_Lifter.MotorSafeFeed();
+	a_FLmotor.SetSafetyEnabled(false);
+		a_FRmotor.SetSafetyEnabled(false);
+		a_BLmotor.SetSafetyEnabled(false);
+		a_BRmotor.SetSafetyEnabled(false);
 }
 
 
 void Smokey_VIII::TeleopInit(void) {
+	a_FLmotor.SetSafetyEnabled(false);
+		a_FRmotor.SetSafetyEnabled(false);
+		a_BLmotor.SetSafetyEnabled(false);
+		a_BRmotor.SetSafetyEnabled(false);
 	a_Lifter.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+	a_Tongue.MotorSafeFeed();
+	a_Lifter.MotorSafeFeed();
 
 	// a_JakeGyro.Reset();
 	// a_JakeGyro.Init();
 
-	a_Tongue.lol();
+	a_Tongue.Raise();
 	a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
+	a_FLmotor.SetSafetyEnabled(false);
+		a_FRmotor.SetSafetyEnabled(false);
+		a_BLmotor.SetSafetyEnabled(false);
+		a_BRmotor.SetSafetyEnabled(false);
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
@@ -86,7 +103,7 @@ void Smokey_VIII::TestInit(void) {
 	a_Lifter.Reset();
 	// a_Lifter.SetEnabled(true);
 	a_Lifter.SetEnabled(false);
-	a_LRC.SetColor(0, 25, 0, 25);
+	// a_LRC.SetColor(0, 25, 0, 25);
 	a_Tongue.lol();
 	a_JakeGyro.Reset();
 	a_JakeGyro.Init();
@@ -180,17 +197,25 @@ void Smokey_VIII::TestPeriodic(void) {
 void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.Reset();
 	a_Lifter.SetEnabled(false);
-	a_LRC.SetColor(0,36,72,72);
+//	a_LRC.SetColor(0,36,72,72);
 	a_DriveEncoder.Reset();
 	// a_JakeGyro.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+	a_Tongue.MotorSafeFeed();
+	a_Lifter.MotorSafeFeed();
 
 	if(a_Joystick2.GetZ() <= -0.8) {
 		a_Tongue.InitAuto();
+	}else {
+		a_Tongue.Raise();
 	}
 }
 void Smokey_VIII::AutonomousPeriodic(void) {
+	a_FLmotor.SetSafetyEnabled(false);
+		a_FRmotor.SetSafetyEnabled(false);
+		a_BLmotor.SetSafetyEnabled(false);
+		a_BRmotor.SetSafetyEnabled(false);
 	// must make sure you set motors every periodic cycle
 	a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
