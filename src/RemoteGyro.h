@@ -14,10 +14,6 @@ public:
 private:
   void Run();
 
-  // ZeroMQ data
-  void *_ctx;
-  void *_sub;
-
   std::atomic<double> _angle;
   std::thread _thread;
 };
