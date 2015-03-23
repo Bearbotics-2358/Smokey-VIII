@@ -20,7 +20,6 @@ Smokey_VIII::Smokey_VIII(void)
   a_LRC(),
   a_Lifter(),
   // a_PDP(),
-  a_DS(),
   a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X),
   a_AutonTimer(),
   a_AutonState(kGrabbing)
@@ -141,9 +140,6 @@ void Smokey_VIII::TestPeriodic(void) {
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
 
 	SmartDashboard::PutNumber("Angle", gyroAngle);
-
-	//a_DS.SendDouble("Current A", a_PDP.GetCurrent(3));
-	//a_DS.SendDouble("Current B", a_PDP.GetCurrent(2));
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());

@@ -61,7 +61,6 @@ private:
 
 	PowerDistributionPanel a_PDP;
 
-	DumbDashboard a_DS;
 	Encoder a_DriveEncoder;
 
 	Timer a_AutonTimer;
