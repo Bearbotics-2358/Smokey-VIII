@@ -13,7 +13,12 @@
 using namespace rapidjson;
 
 RemoteGyro::RemoteGyro()
-  : _angle(0.0),
+  : RemoteGyro(zmq_ctx_new()) {
+}
+
+RemoteGyro::RemoteGyro(void *zmqCtx)
+  : _zmqCtx(zmqCtx),
+    _angle(0.0),
     _thread([this]() {Run();}) {
 }
 
@@ -25,8 +30,7 @@ double RemoteGyro::GetAngle() {
 }
 
 void RemoteGyro::Run() {
-  void *ctx = zmq_ctx_new();
-  void *sub = zmq_socket(ctx, ZMQ_SUB);
+  void *sub = zmq_socket(_zmqCtx, ZMQ_SUB);
 
   const char *channel = "gyro";
   int result = zmq_setsockopt(sub, ZMQ_SUBSCRIBE,

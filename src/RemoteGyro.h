@@ -7,12 +7,15 @@
 class RemoteGyro {
 public:
   RemoteGyro();
+  RemoteGyro(void *zmqCtx);
   ~RemoteGyro();
 
   double GetAngle();
 
 private:
   void Run();
+
+  void *_zmqCtx;
 
   std::atomic<double> _angle;
   std::thread _thread;
