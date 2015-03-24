@@ -6,6 +6,12 @@
 #include <zmq.h>
 #include <zhelpers.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/reader.h>
+#include <rapidjson/stringbuffer.h>
+
+using namespace rapidjson;
+
 RemoteGyro::RemoteGyro()
   : _angle(0.0),
     _thread([this]() {Run();}) {
@@ -44,6 +50,7 @@ void RemoteGyro::Run() {
     size_t more_size = sizeof(more);
     zmq_getsockopt(sub, ZMQ_RCVMORE, &more, &more_size);
     if (!more) {
+      std::cout << "Received message only has one part - skipping." << std::endl;
       free(chan);
       continue;
     }
@@ -54,6 +61,13 @@ void RemoteGyro::Run() {
       continue;
     }
 
+    Document gyroData;
+    gyroData.Parse(data);
+
+    Value &angle = gyroData["angle"][2];
+    _angle = angle.GetDouble();
+
     free(chan);
+    free(data);
   }
 }
