@@ -34,7 +34,7 @@ void RemoteGyro::Run() {
 
   result = zmq_connect(sub, "tcp://10.23.58.16:31415");
   if (result != 0) {
-    std::cout << "Couldn't find any Pi! Here's what we found instead: "
+    std::cout << "The Pi is a lie! zmq_connect returned "
               << result << std::endl;
     return;
   }
@@ -42,6 +42,7 @@ void RemoteGyro::Run() {
   while (true) {
     char *chan = s_recv(sub);
     if (chan == NULL) {
+      std::cout << "Failed to get gyro message" << std::endl;
       continue;
     }
 
@@ -50,13 +51,14 @@ void RemoteGyro::Run() {
     size_t more_size = sizeof(more);
     zmq_getsockopt(sub, ZMQ_RCVMORE, &more, &more_size);
     if (!more) {
-      std::cout << "Received message only has one part - skipping." << std::endl;
+      std::cout << "Received message only has one part" << std::endl;
       free(chan);
       continue;
     }
 
     char *data = s_recv(sub);
     if (data == NULL) {
+      std::cout << "Couldn't get the second part of the message" << std::endl;
       free(chan);
       continue;
     }
