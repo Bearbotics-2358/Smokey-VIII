@@ -1,5 +1,4 @@
-#ifndef _REMOTE_GYRO_H_
-#define _REMOTE_GYRO_H_
+#pragma once
 
 #include <atomic>
 #include <thread>
@@ -21,5 +20,3 @@ private:
   std::atomic<double> _angle;
   std::thread _thread;
 };
-
-#endif // _REMOTE_GYRO_H_
