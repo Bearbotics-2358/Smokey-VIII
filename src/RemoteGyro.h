@@ -11,6 +11,7 @@ public:
 
   void Reset();
   double GetAngle();
+  double GetTemperature();
 
 private:
   void Run();
@@ -18,5 +19,6 @@ private:
   void *_zmqCtx;
 
   std::atomic<double> _angle;
+  std::atomic<double> _temperature;
   std::thread _thread;
 };

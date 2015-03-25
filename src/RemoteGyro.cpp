@@ -19,6 +19,7 @@ RemoteGyro::RemoteGyro()
 RemoteGyro::RemoteGyro(void *zmqCtx)
   : _zmqCtx(zmqCtx),
     _angle(0.0),
+    _temperature(0.0),
     _thread([this]() {Run();}) {
 }
 
@@ -31,6 +32,10 @@ void RemoteGyro::Reset() {
 
 double RemoteGyro::GetAngle() {
   return _angle;
+}
+
+double RemoteGyro::GetTemperature() {
+  return _temperature;
 }
 
 void RemoteGyro::Run() {
@@ -76,6 +81,9 @@ void RemoteGyro::Run() {
 
     Value &angle = gyroData["angle"][2];
     _angle = angle.GetDouble();
+
+    Value &temperature = gyroData["temp"];
+    _temperature = temperature.GetDouble();
 
     free(chan);
     free(data);
