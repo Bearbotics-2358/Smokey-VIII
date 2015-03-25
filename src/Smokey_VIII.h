@@ -2,6 +2,7 @@
 #define SMOKEY_VIII_H
 
 #include "WPILib.h"
+
 #include "ToteDetector.h"
 #include "LightRingController.h"
 #include "Lifterino.h"
@@ -9,6 +10,7 @@
 #include "Tongue.h"
 #include "JakeGyro.h"
 #include "I2C.h"
+#include "RemoteGyro.h"
 
 enum AutoState {
 	kGrabbing = 0,
@@ -37,6 +39,8 @@ public:
 	void AutonomousPeriodicSimple(void);
 
 private:
+	void *a_ZmqCtx;
+
 	Joystick a_Joystick;
 	Joystick a_Joystick2;
 	CANTalon   a_FLmotor;
@@ -53,7 +57,7 @@ private:
 
 	BuiltInAccelerometer a_Accel;
 
-	JakeGyro a_JakeGyro;
+	RemoteGyro a_Gyro;
 
 	LightRingController a_LRC;
 

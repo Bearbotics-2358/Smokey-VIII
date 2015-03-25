@@ -10,6 +10,7 @@ public:
   RemoteGyro(void *zmqCtx);
   ~RemoteGyro();
 
+  void Reset();
   double GetAngle();
 
 private:

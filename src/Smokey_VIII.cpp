@@ -1,11 +1,14 @@
 #include "Smokey_VIII.h"
 #include "Prefs.h"
+
 #include <math.h>
+#include <zmq.h>
 
 int numOfIterations = 0;
 
 Smokey_VIII::Smokey_VIII(void)
-: a_Joystick(JOYSTICK_PORT),
+: a_ZmqCtx(zmq_ctx_new()),
+  a_Joystick(JOYSTICK_PORT),
   a_Joystick2(JOYSTICKTWO_PORT),
   a_FLmotor(FL_PORT),
   a_FRmotor(FR_PORT),
@@ -16,7 +19,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_Compressor(),
   a_Detectorino(DETECTOR_IP),
   a_Accel(Accelerometer::kRange_4G),
-  a_JakeGyro(I2C::kMXP),
+  a_Gyro(a_ZmqCtx),
   a_LRC(),
   a_Lifter(),
   // a_PDP(),
@@ -42,7 +45,6 @@ Smokey_VIII::Smokey_VIII(void)
 void Smokey_VIII::RobotInit(void) {
 	a_Compressor.SetClosedLoopControl(true);
 	a_Drive.SetExpiration(10);
-	// a_JakeGyro.Init();
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 	a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
@@ -54,48 +56,48 @@ void Smokey_VIII::RobotInit(void) {
 
 
 void Smokey_VIII::TeleopInit(void) {
-	a_FLmotor.SetSafetyEnabled(false);
-		a_FRmotor.SetSafetyEnabled(false);
-		a_BLmotor.SetSafetyEnabled(false);
-		a_BRmotor.SetSafetyEnabled(false);
-	a_Lifter.Reset();
+  a_FLmotor.SetSafetyEnabled(false);
+  a_FRmotor.SetSafetyEnabled(false);
+  a_BLmotor.SetSafetyEnabled(false);
+  a_BRmotor.SetSafetyEnabled(false);
 
-	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-	a_Tongue.MotorSafeFeed();
-	a_Lifter.MotorSafeFeed();
+  a_Gyro.Reset();
 
-	// a_JakeGyro.Reset();
-	// a_JakeGyro.Init();
+  a_Lifter.Reset();
 
-	a_Tongue.Raise();
-	a_Tongue.Update(a_Joystick, a_Joystick2);
+  a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+  a_Tongue.MotorSafeFeed();
+  a_Lifter.MotorSafeFeed();
+
+  a_Tongue.Raise();
+  a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
-	a_FLmotor.SetSafetyEnabled(false);
-		a_FRmotor.SetSafetyEnabled(false);
-		a_BLmotor.SetSafetyEnabled(false);
-		a_BRmotor.SetSafetyEnabled(false);
-	double stickX = a_Joystick.GetX();
-	double stickY = a_Joystick.GetY();
-	double stickZ = a_Joystick.GetZ();
-	if(stickZ < 0 && stickZ > -0.3) {
-		stickZ = 0;
-	}
-	if(a_Joystick.GetRawButton(7)) {
-		a_JakeGyro.Reset();
-	}
-	//a_JakeGyro.Update();
+  a_FLmotor.SetSafetyEnabled(false);
+  a_FRmotor.SetSafetyEnabled(false);
+  a_BLmotor.SetSafetyEnabled(false);
+  a_BRmotor.SetSafetyEnabled(false);
 
-	double gyroAngle = a_JakeGyro.GetAngle();
-	gyroAngle = 0;
-	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
+  double stickX = a_Joystick.GetX();
+  double stickY = a_Joystick.GetY();
+  double stickZ = a_Joystick.GetZ();
+  if(stickZ < 0 && stickZ > -0.3) {
+    stickZ = 0; // Deadband
+  }
 
-	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
-	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
+  double gyroAngle = a_Gyro.GetAngle();
 
-	a_Lifter.Update(a_Joystick, a_Joystick2);
-	a_Tongue.Update(a_Joystick, a_Joystick2);
+  if(a_Joystick.GetRawButton(7)) {
+    a_Gyro.Reset();
+  }
+
+  SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
+  SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
+
+  a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
+  a_Lifter.Update(a_Joystick, a_Joystick2);
+  a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TestInit(void) {
@@ -104,12 +106,14 @@ void Smokey_VIII::TestInit(void) {
 	a_Lifter.SetEnabled(false);
 	// a_LRC.SetColor(0, 25, 0, 25);
 	a_Tongue.lol();
-	a_JakeGyro.Reset();
-	a_JakeGyro.Init();
+
+	a_Gyro.Reset();
 }
 
 void Smokey_VIII::TestPeriodic(void) {
 	ToteDetector::Tote tote = {};
+
+  double gyroAngle = a_Gyro.GetAngle();
 
 	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
 	a_Tongue.TestUpdate(a_Joystick, a_Joystick2);
@@ -117,16 +121,17 @@ void Smokey_VIII::TestPeriodic(void) {
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
-	if(a_Joystick.GetRawButton(7)) {
-		a_JakeGyro.Reset();
-	}
-	a_JakeGyro.Update();
+  if(a_Joystick.GetRawButton(7)) {
+    a_Gyro.Reset();
+  }
 
+  /* TODO: Implement?
 	SmartDashboard::PutNumber("Return Temp", a_JakeGyro.GetTemp());
 	SmartDashboard::PutNumber("Return X", a_JakeGyro.GetX());
 	SmartDashboard::PutNumber("Return Y", a_JakeGyro.GetY());
 	SmartDashboard::PutNumber("Return Z", a_JakeGyro.GetZ());
-	SmartDashboard::PutNumber("Angle", a_JakeGyro.GetAngle());
+  */
+	SmartDashboard::PutNumber("Angle", gyroAngle);
 
 	//a_Tongue.Set(0);
 
@@ -136,10 +141,7 @@ void Smokey_VIII::TestPeriodic(void) {
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
-	double gyroAngle = a_JakeGyro.GetAngle();
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
-
-	SmartDashboard::PutNumber("Angle", gyroAngle);
 
 	SmartDashboard::PutNumber("JoystickZ", a_Joystick.GetZ());
 	SmartDashboard::PutNumber("Joystick X", a_Joystick.GetX());
@@ -147,9 +149,6 @@ void Smokey_VIII::TestPeriodic(void) {
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
 	SmartDashboard::PutBoolean("compressor", a_Compressor.GetClosedLoopControl());
-	SmartDashboard::PutNumber("DrimmX", a_JakeGyro.GetX());
-	SmartDashboard::PutNumber("DrimmY", a_JakeGyro.GetY());
-	SmartDashboard::PutNumber("DrimmZ", a_JakeGyro.GetZ());
 
 	bool result = false;
 	if(a_Joystick.GetRawButton(3)){
@@ -195,7 +194,6 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.SetEnabled(false);
 //	a_LRC.SetColor(0,36,72,72);
 	a_DriveEncoder.Reset();
-	// a_JakeGyro.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
 	a_Tongue.MotorSafeFeed();
@@ -240,7 +238,7 @@ void Smokey_VIII::AutonomousPeriodicFull(void) {
   ToteDetector::Tote tote = {};
   double toteError = 0.0;
 	float targetX = 0;
-	double gyroAngle = a_JakeGyro.GetAngle();
+	double gyroAngle = a_Gyro.GetAngle();
 
 	SmartDashboard::PutNumber("drive encoder", a_DriveEncoder.GetDistance());
 
@@ -356,7 +354,7 @@ void Smokey_VIII::AutonomousPeriodicFull(void) {
 	case kTurningBot: // Turn the bot
 		 // Will need to remove later
 		a_Tongue.Raise();
-		if(a_JakeGyro.GetAngle() <= 90){
+		if(gyroAngle <= 90){
 			a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.5, 0);
 		} else {
 		a_DriveEncoder.Reset();

@@ -25,6 +25,10 @@ RemoteGyro::RemoteGyro(void *zmqCtx)
 RemoteGyro::~RemoteGyro() {
 }
 
+void RemoteGyro::Reset() {
+  // TODO: Implement
+}
+
 double RemoteGyro::GetAngle() {
   return _angle;
 }
