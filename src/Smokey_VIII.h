@@ -45,7 +45,7 @@ private:
 	CANTalon   a_BRmotor;
 	RobotDrive a_Drive;
 
-	Tongue a_Tongue;
+	// Tongue a_Tongue;
 
 	Compressor   a_Compressor;
 
