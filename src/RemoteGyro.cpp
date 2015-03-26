@@ -3,21 +3,14 @@
 #include <iostream>
 #include <string.h>
 
-#include <zmq.h>
-#include <zhelpers.h>
-
 #include <rapidjson/document.h>
 #include <rapidjson/reader.h>
 #include <rapidjson/stringbuffer.h>
 
 using namespace rapidjson;
 
-RemoteGyro::RemoteGyro()
-  : RemoteGyro(zmq_ctx_new()) {
-}
-
-RemoteGyro::RemoteGyro(void *zmqCtx)
-  : _zmqCtx(zmqCtx),
+RemoteGyro::RemoteGyro(zmqpp::context &ctx)
+  : _ctx(ctx),
     _angle(0.0),
     _temperature(0.0),
     _thread([this]() {Run();}) {
@@ -39,53 +32,42 @@ double RemoteGyro::GetTemperature() {
 }
 
 void RemoteGyro::Run() {
-  void *sub = zmq_socket(_zmqCtx, ZMQ_SUB);
+  try {
+    zmqpp::socket socket(_ctx, zmqpp::socket_type::subscribe);
+    socket.set(zmqpp::socket_option::subscribe, "gyro");
 
-  const char *channel = "gyro";
-  int result = zmq_setsockopt(sub, ZMQ_SUBSCRIBE,
-      channel, strlen(channel));
+    socket.connect("tcp://10.23.58.16:31415");
 
-  result = zmq_connect(sub, "tcp://10.23.58.16:31415");
-  if (result != 0) {
-    std::cout << "The Pi is a lie! zmq_connect returned "
-              << result << std::endl;
-    return;
-  }
+    while (true) {
+      // Receive the channel name (should be "gyro", since
+      // that's the only string we subscribed to)
+      std::string channel;
+      socket.receive(channel);
 
-  while (true) {
-    char *chan = s_recv(sub);
-    if (chan == NULL) {
-      std::cout << "Failed to get gyro message" << std::endl;
-      continue;
+      // Make sure there's another message part
+      bool receive_more;
+      socket.get(zmqpp::socket_option::receive_more, receive_more);
+      if (!receive_more) {
+        std::cout << "Received message only has one part" << std::endl;
+        continue;
+      }
+
+      // Receive the second part, which should be the JSON
+      // data from the gyro server
+      std::string message;
+      socket.receive(message);
+
+      // Parse and store the data
+      Document gyroData;
+      gyroData.Parse(message.c_str());
+
+      Value &angle = gyroData["angle"][2];
+      _angle = angle.GetDouble();
+
+      Value &temperature = gyroData["temp"];
+      _temperature = temperature.GetDouble();
     }
-
-    // Figure out if the second part of the message is here
-    int more = 0;
-    size_t more_size = sizeof(more);
-    zmq_getsockopt(sub, ZMQ_RCVMORE, &more, &more_size);
-    if (!more) {
-      std::cout << "Received message only has one part" << std::endl;
-      free(chan);
-      continue;
-    }
-
-    char *data = s_recv(sub);
-    if (data == NULL) {
-      std::cout << "Couldn't get the second part of the message" << std::endl;
-      free(chan);
-      continue;
-    }
-
-    Document gyroData;
-    gyroData.Parse(data);
-
-    Value &angle = gyroData["angle"][2];
-    _angle = angle.GetDouble();
-
-    Value &temperature = gyroData["temp"];
-    _temperature = temperature.GetDouble();
-
-    free(chan);
-    free(data);
+  } catch (std::exception &ex) {
+    std::cout << "Exception occured in RemoteGyro thread: " << ex.what() << std::endl;
   }
 }

@@ -3,10 +3,11 @@
 #include <atomic>
 #include <thread>
 
+#include <zmqpp.hpp>
+
 class RemoteGyro {
 public:
-  RemoteGyro();
-  RemoteGyro(void *zmqCtx);
+  RemoteGyro(zmqpp::context &ctx);
   ~RemoteGyro();
 
   void Reset();
@@ -16,7 +17,7 @@ public:
 private:
   void Run();
 
-  void *_zmqCtx;
+  zmqpp::context &_ctx;
 
   std::atomic<double> _angle;
   std::atomic<double> _temperature;

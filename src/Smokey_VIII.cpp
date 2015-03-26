@@ -2,13 +2,11 @@
 #include "Prefs.h"
 
 #include <math.h>
-#include <zmq.h>
 
 int numOfIterations = 0;
 
 Smokey_VIII::Smokey_VIII(void)
-: a_ZmqCtx(zmq_ctx_new()),
-  a_Joystick(JOYSTICK_PORT),
+: a_Joystick(JOYSTICK_PORT),
   a_Joystick2(JOYSTICKTWO_PORT),
   a_FLmotor(FL_PORT),
   a_FRmotor(FR_PORT),

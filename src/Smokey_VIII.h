@@ -3,6 +3,8 @@
 
 #include "WPILib.h"
 
+#include <zmqpp.hpp>
+
 #include "ToteDetector.h"
 #include "LightRingController.h"
 #include "Lifterino.h"
@@ -39,7 +41,7 @@ public:
 	void AutonomousPeriodicSimple(void);
 
 private:
-	void *a_ZmqCtx;
+	zmqpp::context a_ZmqCtx;
 
 	Joystick a_Joystick;
 	Joystick a_Joystick2;
