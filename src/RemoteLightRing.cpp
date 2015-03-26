@@ -37,5 +37,9 @@ void RemoteLightRing::SetColor(int device, int r, int g, int b) {
   writer.EndObject();
   writer.EndObject();
 
-  _socket.send(s.GetString(), zmqpp::socket::dont_wait);
+  try {
+    _socket.send(s.GetString(), zmqpp::socket::dont_wait);
+  } catch (std::exception &ex) {
+    std::cout << "Error sending SetColor command: " << ex.what() << std::endl;
+  }
 }
