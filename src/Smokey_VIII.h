@@ -9,6 +9,7 @@
 #include "Tongue.h"
 #include "JakeGyro.h"
 #include "I2C.h"
+#include "Rollers.h"
 
 enum AutoState {
 	kGrabbing = 0,
@@ -65,6 +66,7 @@ private:
 
 	Timer a_AutonTimer;
 	AutoState a_AutonState;
+	Rollers a_Rollers;
 };
 
 #endif // SMOKEY_VIII_H

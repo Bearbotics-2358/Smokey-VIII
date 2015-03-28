@@ -113,6 +113,7 @@ void Smokey_VIII::TestPeriodic(void) {
 
 	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
 	a_Tongue.TestUpdate(a_Joystick, a_Joystick2);
+	a_Rollers.TestUpdate(a_Joystick, a_Joystick2);
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
