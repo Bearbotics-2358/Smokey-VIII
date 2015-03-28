@@ -67,6 +67,7 @@ void Smokey_VIII::TeleopInit(void) {
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
+	a_Rollers.Update(a_Joystick, a_Joystick2);
 	a_FLmotor.SetSafetyEnabled(false);
 		a_FRmotor.SetSafetyEnabled(false);
 		a_BLmotor.SetSafetyEnabled(false);
