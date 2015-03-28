@@ -28,6 +28,10 @@ Lifterino::Lifterino()
 }
 
 void Lifterino::Update(Joystick &stick, Joystick &stick2) {
+  bool lifterSwitchPressed = !a_LifterSwitch.Get();
+  bool gripExtendButton = stick2.GetRawButton(3);
+  bool gripRetractButton = stick2.GetRawButton(2);
+  float lifterInput = stick2.GetY() * -1.0f;
 
 	a_Rlifter.SetSafetyEnabled(false);
 	a_Llifter.SetSafetyEnabled(false);
@@ -35,33 +39,26 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 	// must make sure you set motors every periodic cycle
 	MotorSafeFeed();
 
-
 	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
-	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
+	SmartDashboard::PutBoolean("Lifter Switch", lifterSwitchPressed);
 	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
 	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
 	SmartDashboard::PutNumber("Lifter State", a_State);
 
-
-	bool GripExtendButton = stick2.GetRawButton(3);
-	bool GripRetractButton = stick2.GetRawButton(2);
-
-	if(!a_LifterSwitch.Get()){
+	if(lifterSwitchPressed) {
 		a_Encoder.Reset();
 	}
 
-	if(a_LifterSwitch.Get() || (stick2.GetY() <= 0)){
-		a_LifterC.Set(-1 * stick2.GetY());
+	if(!lifterSwitchPressed || lifterInput >= 0.0f) {
+		a_LifterC.Set(lifterInput);
 	}
 
-
-	if(GripExtendButton) {
+	if(gripExtendButton) {
 		a_Grip.Set(DoubleSolenoid::kForward);
-	} else if(GripRetractButton) {
+	} else if(gripRetractButton) {
 		a_Grip.Set(DoubleSolenoid::kReverse);
 	}
 }
-
 
 void Lifterino::AutonUpdate(void) {
 
