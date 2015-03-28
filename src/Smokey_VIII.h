@@ -6,7 +6,6 @@
 #include "LightRingController.h"
 #include "Lifterino.h"
 #include "DumbDashboard.h"
-#include "Tongue.h"
 #include "JakeGyro.h"
 #include "I2C.h"
 #include "Rollers.h"
@@ -45,8 +44,6 @@ private:
 	CANTalon   a_BLmotor;
 	CANTalon   a_BRmotor;
 	RobotDrive a_Drive;
-
-	// Tongue a_Tongue;
 
 	Compressor   a_Compressor;
 

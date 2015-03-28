@@ -12,7 +12,6 @@ Smokey_VIII::Smokey_VIII(void)
   a_BLmotor(BL_PORT),
   a_BRmotor(BR_PORT),
   a_Drive(a_FLmotor, a_BLmotor, a_FRmotor, a_BRmotor),
-  // a_Tongue(),
   a_Compressor(),
   a_Detectorino(DETECTOR_IP),
   a_Accel(Accelerometer::kRange_4G),
@@ -45,7 +44,6 @@ void Smokey_VIII::RobotInit(void) {
 	a_Drive.SetExpiration(10);
 	// a_JakeGyro.Init();
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-	// a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
 	a_FLmotor.SetSafetyEnabled(false);
 		a_FRmotor.SetSafetyEnabled(false);
@@ -62,14 +60,10 @@ void Smokey_VIII::TeleopInit(void) {
 	a_Lifter.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-	// a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
 
 	// a_JakeGyro.Reset();
 	// a_JakeGyro.Init();
-
-	// a_Tongue.Raise();
-	// a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
@@ -96,7 +90,6 @@ void Smokey_VIII::TeleopPeriodic(void) {
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 
 	a_Lifter.Update(a_Joystick, a_Joystick2);
-	// a_Tongue.Update(a_Joystick, a_Joystick2);
 }
 
 void Smokey_VIII::TestInit(void) {
@@ -104,7 +97,6 @@ void Smokey_VIII::TestInit(void) {
 	// a_Lifter.SetEnabled(true);
 	a_Lifter.SetEnabled(false);
 	// a_LRC.SetColor(0, 25, 0, 25);
-	// a_Tongue.lol();
 	a_JakeGyro.Reset();
 	a_JakeGyro.Init();
 }
@@ -113,8 +105,8 @@ void Smokey_VIII::TestPeriodic(void) {
 	ToteDetector::Tote tote = {};
 
 	a_Lifter.TestUpdate(a_Joystick, a_Joystick2);
-	a_Tongue.TestUpdate(a_Joystick, a_Joystick2);
 	a_Rollers.TestUpdate(a_Joystick, a_Joystick2);
+
 	if(a_Joystick.GetRawButton(10)){
 		a_Lifter.Reset();
 	}
@@ -128,8 +120,6 @@ void Smokey_VIII::TestPeriodic(void) {
 	SmartDashboard::PutNumber("Return Y", a_JakeGyro.GetY());
 	SmartDashboard::PutNumber("Return Z", a_JakeGyro.GetZ());
 	SmartDashboard::PutNumber("Angle", a_JakeGyro.GetAngle());
-
-	//a_Tongue.Set(0);
 
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
@@ -199,14 +189,7 @@ void Smokey_VIII::AutonomousInit(void) {
 	// a_JakeGyro.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-	a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
-
-	if(a_Joystick2.GetZ() <= -0.8) {
-		a_Tongue.InitAuto();
-	}else {
-		a_Tongue.Raise();
-	}
 }
 void Smokey_VIII::AutonomousPeriodic(void) {
 	a_FLmotor.SetSafetyEnabled(false);
@@ -214,7 +197,6 @@ void Smokey_VIII::AutonomousPeriodic(void) {
 		a_BLmotor.SetSafetyEnabled(false);
 		a_BRmotor.SetSafetyEnabled(false);
 	// must make sure you set motors every periodic cycle
-	//a_Tongue.MotorSafeFeed();
 	a_Lifter.MotorSafeFeed();
 
 	if(a_Joystick2.GetZ() <= -0.8) { // Full Autonomous
@@ -235,7 +217,7 @@ void Smokey_VIII::AutonomousPeriodicSimple(void) {
 }
 
 void Smokey_VIII::AutonomousPeriodicFull(void) {
-
+/*
 	// NOTE: still need to confirm that this updates ALL motors
 
   ToteDetector::Tote tote = {};
@@ -398,5 +380,6 @@ void Smokey_VIII::AutonomousPeriodicFull(void) {
 		break;
 	}
 	a_AutonState = nextState;
+	*/
 }
 START_ROBOT_CLASS(Smokey_VIII);
