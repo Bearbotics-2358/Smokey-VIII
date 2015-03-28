@@ -18,7 +18,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_JakeGyro(I2C::kMXP),
   a_LRC(),
   a_Lifter(),
-  // a_PDP(),
+  a_PDP(),
   a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X),
   a_AutonTimer(),
   a_AutonState(kGrabbing),
@@ -54,9 +54,9 @@ void Smokey_VIII::RobotInit(void) {
 
 void Smokey_VIII::TeleopInit(void) {
 	a_FLmotor.SetSafetyEnabled(false);
-		a_FRmotor.SetSafetyEnabled(false);
-		a_BLmotor.SetSafetyEnabled(false);
-		a_BRmotor.SetSafetyEnabled(false);
+	a_FRmotor.SetSafetyEnabled(false);
+	a_BLmotor.SetSafetyEnabled(false);
+	a_BRmotor.SetSafetyEnabled(false);
 	a_Lifter.Reset();
 
 	a_Drive.MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
@@ -67,30 +67,34 @@ void Smokey_VIII::TeleopInit(void) {
 }
 
 void Smokey_VIII::TeleopPeriodic(void) {
+	a_Lifter.Update(a_Joystick, a_Joystick2);
 	a_Rollers.Update(a_Joystick, a_Joystick2);
+
 	a_FLmotor.SetSafetyEnabled(false);
-		a_FRmotor.SetSafetyEnabled(false);
-		a_BLmotor.SetSafetyEnabled(false);
-		a_BRmotor.SetSafetyEnabled(false);
+	a_FRmotor.SetSafetyEnabled(false);
+	a_BLmotor.SetSafetyEnabled(false);
+	a_BRmotor.SetSafetyEnabled(false);
+
 	double stickX = a_Joystick.GetX();
 	double stickY = a_Joystick.GetY();
 	double stickZ = a_Joystick.GetZ();
 	if(stickZ < 0 && stickZ > -0.3) {
 		stickZ = 0;
 	}
+
 	if(a_Joystick.GetRawButton(7)) {
 		a_JakeGyro.Reset();
 	}
 	//a_JakeGyro.Update();
 
-	double gyroAngle = a_JakeGyro.GetAngle();
-	gyroAngle = 0;
+	// double gyroAngle = a_JakeGyro.GetAngle();
+	double gyroAngle = 0;
 	a_Drive.MecanumDrive_Cartesian(stickX, stickY, stickZ, gyroAngle);
 
 	SmartDashboard::PutNumber("Current A", a_PDP.GetCurrent(3));
 	SmartDashboard::PutNumber("Current B", a_PDP.GetCurrent(2));
 
-	a_Lifter.Update(a_Joystick, a_Joystick2);
+
 }
 
 void Smokey_VIII::TestInit(void) {

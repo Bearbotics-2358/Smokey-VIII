@@ -31,167 +31,37 @@ void Lifterino::Update(Joystick &stick, Joystick &stick2) {
 
 	a_Rlifter.SetSafetyEnabled(false);
 	a_Llifter.SetSafetyEnabled(false);
-	if(stick2.GetRawButton(6)) {
-		SwitchToManual(false);
-		a_PID.Disable();
-	} else if(stick2.GetRawButton(7)) {
-		SwitchToManual(true);
-		a_PID.Enable();
-	}
 
 	// must make sure you set motors every periodic cycle
 	MotorSafeFeed();
 
-	if(enabled) {
-		bool liftButton = stick.GetRawButton(1);
 
-		LifterinoState nextState = a_State;
-
-		SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
-		SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
-		SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
-		SmartDashboard::PutNumber("PID Error", a_PID.GetError());
-		SmartDashboard::PutNumber("Lifter State", a_State);
-
-		if(!a_LifterSwitch.Get()) {
-			a_Encoder.Reset();
-		}
-
-		// State Machine
-		switch(a_State){
-		case kFindZero:
-			a_LifterC.Set(-0.1);
-			if(!a_LifterSwitch.Get()) {
-				a_LifterC.Set(0.0);
-				a_PID.Enable();
-				a_PID.SetSetpoint(0.0);
-				nextState = kNoTotes;
-
-			}
-			break;
-
-		case kNoTotes:
-			if(liftButton){
-				nextState = kGrip;
-			}
-			break;
-
-		case kGrip:
-			a_Grip.Set(DoubleSolenoid::kForward);
-			a_Timer.Reset();
-			a_Timer.Start();
-			nextState = kGripDelay;
-			break;
-
-		case kRelease:
-			a_Grip.Set(DoubleSolenoid::kReverse);
-			a_Timer.Reset();
-			a_Timer.Start();
-			nextState = kReleaseDelay;
-			break;
-
-		case kGripDelay:
-			if(a_Timer.Get() >= 1 ){
-				nextState = kLift;
-			}
-			break;
-
-		case kLift:
-			a_PID.SetSetpoint(TOP_LIFTER_SETPOINT);
-			if(a_PID.OnTarget()) {
-				nextState = kIdleWithTote;
-			}
-			break;
-
-		case kIdleWithTote:
-			if(liftButton){
-				nextState = kMoveDown;
-			}else if(stick.GetRawButton(10)){
-				nextState = kPlacing;
-			}
-			break;
-
-		case kMoveDown:
-			a_PID.SetSetpoint(MOVE_DOWN_SETPOINT);
-			if(a_PID.OnTarget()) {
-				nextState = kRelease;
-			}
-			break;
-
-		case kLower:
-			a_PID.SetSetpoint(BOTTOM_LIFTER_SETPOINT);
-			if(a_PID.OnTarget()){
-				nextState = kGrip;
-			}
-			break;
-
-		case kReleaseDelay:
-			if(a_Timer.Get() >= 1){
-				nextState = kLower;
-			}
-			break;
-
-		case kPlacing:
-			a_PID.SetSetpoint(BOTTOM_LIFTER_SETPOINT);
-			if(a_PID.OnTarget()) {
-				a_Grip.Set(DoubleSolenoid::kReverse);
-				nextState = kNoTotes;
-			}
-			break;
-		}
-
-		a_State = nextState;
-
-	} else {
-		SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
-		SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
-		SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
-		SmartDashboard::PutNumber("PID Error", a_PID.GetError());
-		SmartDashboard::PutNumber("Lifter State", a_State);
+	SmartDashboard::PutNumber("Encoder Value", a_Encoder.GetDistance());
+	SmartDashboard::PutBoolean("Lifter Switch", a_LifterSwitch.Get());
+	SmartDashboard::PutNumber("Lifter Speed", a_PID.Get());
+	SmartDashboard::PutNumber("PID Error", a_PID.GetError());
+	SmartDashboard::PutNumber("Lifter State", a_State);
 
 
-		bool GripExtendButton = stick2.GetRawButton(3);
-		bool GripRetractButton = stick2.GetRawButton(2);
+	bool GripExtendButton = stick2.GetRawButton(3);
+	bool GripRetractButton = stick2.GetRawButton(2);
 
-		if(!a_LifterSwitch.Get()){
-			a_Encoder.Reset();
-		}
+	if(!a_LifterSwitch.Get()){
+		a_Encoder.Reset();
+	}
 
-		double soke = GetSmartDashboardNumber("soke", 60);
-
-		if(stick2.GetRawButton(8)) {
-			SetEnabled(false);
-		}
-
-		if(stick2.GetRawButton(1)){
-			SetEnabled(true);
-			a_PID.SetSetpoint(soke);
-		}
-		if(stick2.GetRawButton(9)){
-			SetEnabled(true);
-			a_PID.SetSetpoint(1);
-		}else if(stick2.GetRawButton(10)){
-			SetEnabled(true);
-			a_PID.SetSetpoint(30);
-		}else if(stick2.GetRawButton(11)){
-			SetEnabled(true);
-			a_PID.SetSetpoint(40);
-		}
+	if(a_LifterSwitch.Get() || (stick2.GetY() <= 0)){
+		a_LifterC.Set(-1 * stick2.GetY());
+	}
 
 
-		if(!a_enabled) {
-			if(a_LifterSwitch.Get() || (stick2.GetY() <= 0)){
-				a_LifterC.Set(-1 * stick2.GetY());
-			}
-		}
-
-		if(GripExtendButton) {
-			a_Grip.Set(DoubleSolenoid::kForward);
-		} else if(GripRetractButton) {
-			a_Grip.Set(DoubleSolenoid::kReverse);
-		}
+	if(GripExtendButton) {
+		a_Grip.Set(DoubleSolenoid::kForward);
+	} else if(GripRetractButton) {
+		a_Grip.Set(DoubleSolenoid::kReverse);
 	}
 }
+
 
 void Lifterino::AutonUpdate(void) {
 
