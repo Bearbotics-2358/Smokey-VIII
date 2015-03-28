@@ -23,6 +23,7 @@ Smokey_VIII::Smokey_VIII(void)
   a_DriveEncoder(DRIVE_ENCODER_PORT_1, DRIVE_ENCODER_PORT_2, true, Encoder::k4X),
   a_AutonTimer(),
   a_AutonState(kGrabbing)
+  a_Rollers()
 {
 	a_Drive.SetInvertedMotor(a_Drive.kRearRightMotor, true);
 	a_Drive.SetInvertedMotor(a_Drive.kFrontRightMotor, true);
