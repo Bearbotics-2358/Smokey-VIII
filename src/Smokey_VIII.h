@@ -39,10 +39,10 @@ public:
 private:
 	Joystick a_Joystick;
 	Joystick a_Joystick2;
-	CANTalon   a_FLmotor;
-	CANTalon   a_FRmotor;
-	CANTalon   a_BLmotor;
-	CANTalon   a_BRmotor;
+	CanTalonSRX   a_FLmotor;
+	CanTalonSRX   a_FRmotor;
+	CanTalonSRX   a_BLmotor;
+	CanTalonSRX   a_BRmotor;
 	RobotDrive a_Drive;
 
 	Compressor   a_Compressor;

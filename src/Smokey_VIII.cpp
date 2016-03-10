@@ -197,13 +197,12 @@ void Smokey_VIII::AutonomousInit(void) {
 	a_Lifter.MotorSafeFeed();
 }
 void Smokey_VIII::AutonomousPeriodic(void) {
-	a_FLmotor.SetSafetyEnabled(false);
+	    a_FLmotor.SetSafetyEnabled(false);
 		a_FRmotor.SetSafetyEnabled(false);
 		a_BLmotor.SetSafetyEnabled(false);
 		a_BRmotor.SetSafetyEnabled(false);
 	// must make sure you set motors every periodic cycle
 	a_Lifter.MotorSafeFeed();
-
 	if(a_Joystick2.GetZ() <= -0.8) { // Full Autonomous
 		AutonomousPeriodicFull();
 	} else if(a_Joystick2.GetZ() >= 0.8) { // No Autonomous

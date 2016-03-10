@@ -6,11 +6,11 @@
 #include "PWM.h"
 #include "Talon.h"
 
-class KiwiController :  public SpeedController
+class ShifterController :  public SpeedController
 {
 public:
-	KiwiController(Talon &Left, Talon &Right);
-	virtual ~KiwiController();
+	ShifterController(Talon &Left, Talon &Right);
+	virtual ~ShifterController();
 	virtual void Set(float value, uint8_t syncGroup = 0);
 	virtual float Get();
 	virtual void Disable();

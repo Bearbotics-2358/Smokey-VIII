@@ -50,7 +50,7 @@ private:
 
 	DigitalInput a_LifterSwitch;
 
-	KiwiController a_LifterC;
+	ShifterController a_LifterC;
 
 	PIDController a_PID;
 
